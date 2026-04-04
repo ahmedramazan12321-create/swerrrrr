@@ -115,7 +115,26 @@ window.onload = function(){
 
   // 🔥 المستخدم الحالي
   let currentUser = localStorage.getItem("currentUser");
-  let users = JSON.parse(localStorage.getItem("users")) || [];
+  window.onload = function(){
+
+  let id = localStorage.getItem("userId");
+
+  fetch("https://swerrrr.onrender.com/user/" + id)
+  .then(res => res.json())
+  .then(user => {
+
+    if(user.error){
+      document.getElementById("email").innerText = "Error";
+      return;
+    }
+
+    document.getElementById("email").innerText = user.email;
+    document.getElementById("userId").innerText = user.id;
+    document.getElementById("balance").innerText = user.balance;
+
+  });
+
+}
 
   let user = users.find(u => u.email === currentUser);
 
