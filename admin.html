@@ -45,9 +45,8 @@ button{
 <button onclick="removeBalance()">Remove Balance</button>
 <button onclick="finishTimer()">Finish Timer</button>
 <script>
-const API = "https://swerrrr.onrender.com"; // حط رابطك
+const API = "https://swerrrr.onrender.com";
 
-// ➕ إضافة رصيد
 // ➕ إضافة رصيد
 function addBalance(){
 
@@ -81,7 +80,6 @@ function addBalance(){
   });
 }
 
-
 // ➖ حذف رصيد
 function removeBalance(){
 
@@ -102,7 +100,7 @@ function removeBalance(){
     },
     body: JSON.stringify({
       id: Number(id),
-      amount: -amount // 🔥 سالب = حذف
+      amount: -amount
     })
   })
   .then(res => res.json())
@@ -113,12 +111,6 @@ function removeBalance(){
       alert("✅ bakiye silindi");
     }
   });
-}
-
-
-// ⏱️ إنهاء التايمر (اختياري)
-function finishTimer(){
-  alert("Timer reset özelliği henüz backend'e bağlanmadı");
 }
 </script>
 
