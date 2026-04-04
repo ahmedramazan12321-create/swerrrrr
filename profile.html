@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile</title>
+
+<style>
+  .bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  background: #020617;
+  border-top: 1px solid rgba(255,255,255,0.1);
+
+  z-index: 999;
+}
+
+.nav-item {
+  flex: 1;
+  text-align: center;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.nav-item span {
+  display: block;
+  font-size: 18px;
+}
+
+.nav-item.active {
+  color: gold;
+}
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(180deg, #0a1f44, #000);
+  color: white;
+}
+
+/* TOP */
+.top {
+  padding: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.info {
+  margin-top: 20px;
+}
+
+.box {
+  margin: 20px;
+  padding: 20px;
+  background: gold;
+  color: black;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.menu {
+  margin: 20px;
+}
+
+.item {
+  padding: 15px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top">
+  <div class="logo">
+    <img src="https://i.ibb.co/NnY0jXCx/IMG-20240322-WA0000.jpg">
+    <h2>DOLAR</h2>
+  </div>
+
+  <div class="info">
+    <p id="email"></p>
+    <p style="color:white;">ID: <span id="userId" style="color:white;"></span></p>
+  </div>
+</div>
+
+<div class="box">
+  <p>Toplam bakiye (USDT)</p>
+  <h2 id="balance">0</h2>
+</div>
+
+<div class="menu">
+  <div class="item" onclick="logout()">Çıkış Yap</div>
+</div>
+
+<script>
+window.onload = function(){
+
+  // 🔥 المستخدم الحالي
+  let currentUser = localStorage.getItem("currentUser");
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  let user = users.find(u => u.email === currentUser);
+
+  // ✅ عرض البيانات الصحيحة
+  if(user){
+    document.getElementById("email").innerText = user.email;
+    document.getElementById("userId").innerText = user.id;
+    document.getElementById("balance").innerText = user.balance || 0;
+  } else {
+    document.getElementById("email").innerText = "No user";
+    document.getElementById("userId").innerText = "-";
+    document.getElementById("balance").innerText = "0";
+  }
+
+  // 🌐 اللغة
+  let lang = localStorage.getItem("lang") || "tr";
+  applyLang(lang);
+}
+
+
+// 🔓 تسجيل خروج حقيقي
+function logout(){
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("userId");
+  window.location.href = "index.html";
+}
+
+
+// 🌐 ترجمة
+const translations = {
+  tr: {
+    balance: "Toplam bakiye (USDT)",
+    logout: "Çıkış Yap",
+    nav_home: "Ev",
+    nav_vip: "VIP",
+    nav_task: "Görev",
+    nav_profile: "Ben"
+  },
+  ar: {
+    balance: "إجمالي الرصيد (USDT)",
+    logout: "تسجيل الخروج",
+    nav_home: "الرئيسية",
+    nav_vip: "VIP",
+    nav_task: "المهام",
+    nav_profile: "أنا"
+  },
+  en: {
+    balance: "Total Balance (USDT)",
+    logout: "Logout",
+    nav_home: "Home",
+    nav_vip: "VIP",
+    nav_task: "Tasks",
+    nav_profile: "Me"
+  }
+};
+
+function applyLang(lang){
+  let t = translations[lang];
+  if(!t) return;
+
+  document.querySelector(".box p").innerText = t.balance;
+  document.querySelector(".item").innerText = t.logout;
+
+  document.getElementById("nav_home").innerText = t.nav_home;
+  document.getElementById("nav_vip").innerText = t.nav_vip;
+  document.getElementById("nav_task").innerText = t.nav_task;
+  document.getElementById("nav_profile").innerText = t.nav_profile;
+}
+</script>
+<div class="bottom-nav">
+
+  <div class="nav-item" onclick="window.location.href='dashboard.html'">
+    <span>🏠</span>
+    <p id="nav_home">Ev</p>
+  </div>
+
+  <div class="nav-item" onclick="window.location.href='vip.html'">
+    <span>👑</span>
+    <p id="nav_vip">VIP</p>
+  </div>
+
+  <div class="nav-item" onclick="window.location.href='tasks.html'">
+    <span>📊</span>
+    <p id="nav_task">Görev</p>
+  </div>
+
+  <div class="nav-item active">
+    <span>👤</span>
+    <p id="nav_profile">Ben</p>
+  </div>
+
+</div>
+</body>
+</html>

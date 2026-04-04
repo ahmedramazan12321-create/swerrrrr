@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOLAR - Şirket Profili</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { background: #0f172a; color: white; padding: 60px 20px 20px; font-family: 'Segoe UI', sans-serif; }
+  .profile-container { max-width: 800px; margin: auto; line-height: 1.6; }
+  h2 { color: #b6ff00; border-left: 4px solid #b6ff00; padding-left: 10px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: #1e293b; }
+  th, td { border: 1px solid #334155; padding: 12px; text-align: left; }
+  th { background: #334155; color: #b6ff00; }
+  .highlight { color: #b6ff00; font-weight: bold; }
+</style>
+</head>
+<body>
+
+
+
+<div class="profile-container">
+
+  <div class="back-nav" onclick="window.location.href='dashboard.html'">✖</div>
+
+  <h2 id="title"></h2>
+
+  <h3 id="dateTitle"></h3>
+  <p id="dateText"></p>
+
+  <h3 id="aboutTitle"></h3>
+  <p id="aboutText"></p>
+
+  <h3 id="visionTitle"></h3>
+  <p id="visionText"></p>
+
+  <h3 id="advTitle"></h3>
+  <ul id="advList"></ul>
+
+  <h3 id="statsTitle"></h3>
+  <table>
+    <tr><th id="th1"></th><th id="th2"></th></tr>
+    <tr><td id="td1"></td><td>125,000+</td></tr>
+    <tr><td id="td2"></td><td>$2.5M+</td></tr>
+    <tr><td id="td3"></td><td>35+</td></tr>
+  </table>
+
+  <h3 id="securityTitle"></h3>
+  <p id="securityText"></p>
+
+</div>
+<script>
+const translations = {
+  tr: {
+    title: "🏢 DOLAR Global Yatırım Platformu",
+    dateTitle: "📅 Kuruluş",
+    dateText: "DOLAR, 29.03.2026 tarihinde kurulmuş küresel bir dijital yatırım platformudur.",
+    aboutTitle: "🌍 Hakkımızda",
+    aboutText: "DOLAR, blockchain teknolojisi ile modern finansı birleştirerek VIP yatırım deneyimi sunar.",
+    visionTitle: "🚀 Vizyonumuz",
+    visionText: "Global finans dünyasında lider olmak.",
+    advTitle: "💎 Avantajlar",
+    adv: [
+      "✔️ Günlük yüksek kazanç",
+      "✔️ Güvenli sistem",
+      "✔️ Hızlı çekim",
+      "✔️ VIP avantajlar"
+    ],
+    statsTitle: "📊 İstatistikler",
+    th1: "Kategori",
+    th2: "Değer",
+    td1: "Toplam Kullanıcı",
+    td2: "Günlük İşlem",
+    td3: "Aktif Ülke",
+    securityTitle: "🔒 Güvenlik",
+    securityText: "Varlıkların %98'i soğuk cüzdanlarda saklanır."
+  },
+
+  en: {
+    title: "🏢 DOLAR Global Investment Platform",
+    dateTitle: "📅 Founded",
+    dateText: "DOLAR was established on 29.03.2026 as a global digital investment platform.",
+    aboutTitle: "🌍 About Us",
+    aboutText: "DOLAR combines blockchain technology with modern finance to deliver VIP investment experience.",
+    visionTitle: "🚀 Our Vision",
+    visionText: "To become a leader in global finance.",
+    advTitle: "💎 Advantages",
+    adv: [
+      "✔️ Daily high profit",
+      "✔️ Secure system",
+      "✔️ Fast withdrawals",
+      "✔️ VIP benefits"
+    ],
+    statsTitle: "📊 Statistics",
+    th1: "Category",
+    th2: "Value",
+    td1: "Total Users",
+    td2: "Daily Volume",
+    td3: "Active Countries",
+    securityTitle: "🔒 Security",
+    securityText: "98% of assets are stored in cold wallets."
+  },
+
+  ar: {
+    title: "🏢 منصة DOLAR العالمية",
+    dateTitle: "📅 التأسيس",
+    dateText: "تم إنشاء DOLAR بتاريخ 29.03.2026 كمنصة استثمار رقمية عالمية.",
+    aboutTitle: "🌍 من نحن",
+    aboutText: "تجمع DOLAR بين تقنية البلوكشين والتمويل الحديث لتقديم تجربة VIP.",
+    visionTitle: "🚀 رؤيتنا",
+    visionText: "أن نكون رواد في عالم التمويل العالمي.",
+    advTitle: "💎 المميزات",
+    adv: [
+      "✔️ أرباح يومية",
+      "✔️ نظام آمن",
+      "✔️ سحب سريع",
+      "✔️ مزايا VIP"
+    ],
+    statsTitle: "📊 الإحصائيات",
+    th1: "الفئة",
+    th2: "القيمة",
+    td1: "عدد المستخدمين",
+    td2: "الحجم اليومي",
+    td3: "الدول النشطة",
+    securityTitle: "🔒 الأمان",
+    securityText: "يتم حفظ 98% من الأصول في محافظ باردة."
+  }
+};
+
+function applyLang(){
+  let lang = localStorage.getItem("lang") || "tr";
+  let t = translations[lang];
+
+  document.getElementById("title").innerText = t.title;
+  document.getElementById("dateTitle").innerText = t.dateTitle;
+  document.getElementById("dateText").innerText = t.dateText;
+  document.getElementById("aboutTitle").innerText = t.aboutTitle;
+  document.getElementById("aboutText").innerText = t.aboutText;
+  document.getElementById("visionTitle").innerText = t.visionTitle;
+  document.getElementById("visionText").innerText = t.visionText;
+
+ let list = document.getElementById("advList");
+list.innerHTML = "";
+t.adv.forEach(item=>{
+  
+  let li = document.createElement("li");
+  li.innerText = item;
+  list.appendChild(li);
+});
+
+  document.getElementById("statsTitle").innerText = t.statsTitle;
+  document.getElementById("th1").innerText = t.th1;
+  document.getElementById("th2").innerText = t.th2;
+  document.getElementById("td1").innerText = t.td1;
+  document.getElementById("td2").innerText = t.td2;
+  document.getElementById("td3").innerText = t.td3;
+
+  document.getElementById("securityTitle").innerText = t.securityTitle;
+  document.getElementById("securityText").innerText = t.securityText;
+}
+
+window.onload = applyLang;
+</script>
+</body>
+</html>

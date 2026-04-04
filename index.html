@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOLAR</title>
+<link rel="manifest" href="manifest.json">
+
+<style>
+ 
+
+.lang-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(90deg, #ffd700, #ff8800);
+  border-radius: 50%;
+
+  font-size: 16px;
+  cursor: pointer;
+
+  box-shadow: 0 0 10px rgba(255,200,0,0.6);
+}
+
+
+.lang-menu div {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.lang-menu div:hover {
+  background: gold;
+  color: black;
+}
+  .lang-menu {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: #111827;
+  border-radius: 15px;
+  padding: 10px;
+  width: 160px;
+  box-shadow: 0 0 20px rgba(255,200,0,0.5);
+}
+  
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(180deg, #0a1f44, #000);
+  color: white;
+}
+
+
+
+
+
+
+
+.top {
+  text-align: center;
+  margin-top: 60px;
+}
+
+/* Logo */
+.logo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: url('https://i.ibb.co/NnY0jXCx/IMG-20240322-WA0000.jpg') center/cover no-repeat;
+  
+  margin: 0 auto;   /* 🔥 هذا المهم */
+  display: block;
+
+  box-shadow: 0 0 40px rgba(0,255,255,0.4);
+}
+
+/* Yazı */
+.title {
+  margin-top: 10px;
+  font-size: 30px;
+  color: #b6ff00;
+  text-align: center;
+}
+
+/* Form kart */
+.card {
+  margin: 0 auto; /* 🔥 هذا المهم */
+
+  width: 90%;
+  max-width: 350px;
+
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+
+  padding: 30px;
+  border-radius: 25px;
+
+  box-shadow:
+    0 0 20px rgba(0,255,200,0.2),
+    0 0 40px rgba(0,255,200,0.1);
+
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.card h2 {
+  text-align: center;
+  margin-bottom: 15px;
+
+  background: linear-gradient(90deg, #00ffc8, #00bcd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  font-size: 24px;
+}
+
+/* Input */
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: #eee;
+}
+
+/* Buton */
+button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #42a5f5, #1e88e5);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+/* Alt yazı */
+.switch {
+  text-align: center;
+  margin-top: 10px;
+  color: #42a5f5;
+  cursor: pointer;
+}
+
+</style>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  
+  <div class="lang-box">
+  <div class="lang-btn" onclick="toggleLang()">🌐</div>
+
+  <div class="lang-menu" id="langMenu">
+  <div onclick="setLang('tr')">🇹🇷 Türkçe</div>
+  <div onclick="setLang('en')">🇺🇸 English</div>
+  <div onclick="setLang('ar')">🇸🇦 العربية</div>
+  <div onclick="setLang('fr')">🇫🇷 Français</div>
+  <div onclick="setLang('zh')">🇨🇳 中文</div>
+  <div onclick="setLang('es')">🇪🇸 Español</div>
+  <div onclick="setLang('de')">🇩🇪 Deutsch</div>
+  <div onclick="setLang('ru')">🇷🇺 Русский</div>
+  <div onclick="setLang('it')">🇮🇹 Italiano</div>
+</div>
+<div class="top">
+  <div class="logo"></div>
+  <div class="title">DOLAR</div>
+</div>
+
+<div class="card">
+  
+
+  <h2 id="title">Giriş Yap</h2>
+  
+
+  <input type="email" id="email" placeholder="E-posta">
+  <input type="password" id="password" placeholder="Şifre">
+
+  <button onclick="submitForm()" id="btn">Giriş Yap</button>
+  <p id="msg" style="text-align:center; margin-top:10px;"></p>
+
+  <div class="switch" onclick="toggleForm()" id="switchText">
+    Hesabın yok mu? Üye Ol
+  </div>
+
+</div>
+
+<script>
+  function goBack(){
+  window.history.back();
+}
+ function setLang(lang){
+  localStorage.setItem("lang", lang);
+  applyLang(lang);
+}
+
+let savedLang = localStorage.getItem("lang");
+
+
+let isLogin = true;
+
+const texts = {
+  tr: {
+    login: "Giriş Yap",
+    register: "Üye Ol",
+    email: "E-posta",
+    password: "Şifre",
+    switchLogin: "Hesabın yok mu? Üye Ol",
+    switchRegister: "Zaten hesabın var mı? Giriş Yap",
+
+    email_exists: "❌ Bu email zaten kayıtlı!",
+invalid_email: "Email @gmail.com ile bitmeli!",
+short_pass: "Şifre en az 6 karakter olmalı!",
+login_error: "Email veya şifre yanlış ❌"
+  },
+
+  en: {
+    login: "Login",
+    register: "Sign Up",
+    email: "Email",
+    password: "Password",
+    switchLogin: "No account? Sign Up",
+    switchRegister: "Already have an account? Login",
+
+    email_exists: "❌ This email is already registered!",
+    invalid_email: "Email must end with @gmail.com",
+    short_pass: "Password must be at least 6 characters",
+    login_error: "Wrong email or password ❌"
+  },
+
+  ar: {
+    login: "تسجيل الدخول",
+    register: "إنشاء حساب",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    switchLogin: "ليس لديك حساب؟ إنشاء حساب",
+    switchRegister: "لديك حساب؟ تسجيل الدخول",
+
+    email_exists: "❌ هذا البريد مستخدم بالفعل!",
+    invalid_email: "يجب أن ينتهي البريد بـ @gmail.com",
+    short_pass: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    login_error: "البريد أو كلمة المرور خاطئة ❌"
+  }
+};
+
+let lang = localStorage.getItem("lang") || "tr";
+
+
+
+function updateText() {
+  const t = texts[lang];
+
+  document.getElementById("title").innerText = isLogin ? t.login : t.register;
+  document.getElementById("btn").innerText = isLogin ? t.login : t.register;
+  document.getElementById("email").placeholder = t.email;
+  document.getElementById("password").placeholder = t.password;
+  document.getElementById("switchText").innerText =
+    isLogin ? t.switchLogin : t.switchRegister;
+}
+
+function toggleForm() {
+  isLogin = !isLogin;
+  updateText();
+}
+function applyLang(lang){
+  const t = texts[lang];
+  if(!t) return;
+
+  document.getElementById("title").innerText = isLogin ? t.login : t.register;
+  document.getElementById("btn").innerText = isLogin ? t.login : t.register;
+  document.getElementById("email").placeholder = t.email;
+  document.getElementById("password").placeholder = t.password;
+  document.getElementById("switchText").innerText =
+    isLogin ? t.switchLogin : t.switchRegister;
+}
+
+function submitForm() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const msg = document.getElementById("msg");
+  let lang = localStorage.getItem("lang") || "tr";
+let t = texts[lang];
+
+  // 🔹 تحقق
+  if (!email.endsWith("@gmail.com")) {
+    msg.innerText = t.email_exists;
+    msg.style.color = "red";
+    return;
+  }
+
+  if (password.length < 6) {
+    msg.innerText = "Şifre en az 6 karakter olmalı!";
+    msg.style.color = "red";
+    return;
+  }
+
+  // 🔥 users list جديد
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  // 🔹 تسجيل
+  if (!isLogin) {
+
+    // ❌ منع تكرار الإيميل
+    let exists = users.find(u => u.email === email);
+
+    if (exists) {
+      msg.innerText = t.email_exists;
+      msg.style.color = "red";
+      return;
+    }
+
+    let lastId = localStorage.getItem("lastUserId");
+
+    if (!lastId) {
+      lastId = 200500;
+    } else {
+      lastId = Number(lastId) + 1;
+    }
+
+    localStorage.setItem("lastUserId", lastId);
+
+    // 🔥 حفظ المستخدم داخل users
+    users.push({
+      email: email,
+      password: password,
+      id: lastId
+    });
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    msg.innerText = "Kayıt başarılı! ID: " + lastId;
+    msg.style.color = "lightgreen";
+
+    setTimeout(() => {
+      toggleForm();
+      msg.innerText = "";
+    }, 1500);
+
+  } else {
+
+    // 🔐 تسجيل الدخول من users
+    let user = users.find(u => u.email === email && u.password === password);
+
+    if (user) {
+
+      localStorage.setItem("currentUser", email);
+      localStorage.setItem("userId", user.id);
+
+      msg.innerText = "Giriş başarılı!";
+      msg.style.color = "lightgreen";
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1000);
+
+    } else {
+      msg.innerText = "Email veya şifre yanlış ❌";
+      msg.style.color = "red";
+    }
+  }
+}
+// Dil verilerini genişletiyoruz
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function installApp() {
+
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('APP installed');
+      } else {
+        console.log('Install cancelled');
+      }
+
+      deferredPrompt = null;
+    });
+  }
+}
+
+</script>
+<script>
+function closePage(){
+  window.open('', '_self');
+  window.close();
+}
+function toggleLang(){
+  document.addEventListener("click", function(e){
+  let menu = document.getElementById("langMenu");
+  let btn = document.querySelector(".lang-btn");
+
+  if (!menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.style.display = "none";
+  }
+});
+  let menu = document.getElementById("langMenu");
+
+  if(menu.style.display === "block"){
+    menu.style.display = "none";
+  } else {
+    menu.style.display = "block";
+  }
+}
+
+
+let index = 0;
+let slides = document.getElementById("slides");
+let dots = document.querySelectorAll(".dots span");
+
+function showSlide(i){
+  index = i;
+  slides.style.transform = "translateX(" + (-i * 100) + "%)";
+
+  dots.forEach(d => d.classList.remove("active"));
+  dots[i].classList.add("active");
+}
+
+function goSlide(i){
+  showSlide(i);
+}
+
+setInterval(() => {
+  index = (index + 1) % 2;
+  showSlide(index);
+}, 3000);
+
+showSlide(0)
+
+window.onload = function(){
+  let savedLang = localStorage.getItem("lang") || "tr";
+  applyLang(savedLang);
+}
+</script>
+
+</body>
+</html>

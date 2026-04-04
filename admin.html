@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<style>
+body{
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+  padding-top:100px;
+}
+
+input{
+  display:block;
+  margin:10px auto;
+  padding:12px;
+  width:250px;
+  border-radius:10px;
+  border:none;
+}
+
+button{
+  padding:12px 20px;
+  background:orange;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🔧 Admin Panel</h2>
+
+<input id="password" placeholder="Password">
+<input id="uid" placeholder="User ID">
+<input id="amount" placeholder="Amount">
+
+<button onclick="addBalance()">Add Balance</button>
+<button onclick="removeBalance()">Remove Balance</button>
+<button onclick="finishTimer()">Finish Timer</button>
+<script>
+function removeBalance(){
+
+  let pass = document.getElementById("password").value;
+
+  // 🔐 كلمة السر
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  let id = document.getElementById("uid").value;
+  let amount = document.getElementById("amount").value;
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  let user = users.find(u => u.id == id);
+
+  if(!user){
+    alert("❌ kullanıcı yok");
+    return;
+  }
+
+  // 🔥 خصم الرصيد
+  user.balance = (user.balance || 0) - Number(amount);
+
+  // ❗ منع السالب (اختياري)
+  if(user.balance < 0){
+    user.balance = 0;
+  }
+
+  localStorage.setItem("users", JSON.stringify(users));
+
+  let currentUser = localStorage.getItem("currentUser");
+
+  if(currentUser === user.email){
+    localStorage.setItem("balance", user.balance);
+  }
+
+  alert("✅ silindi: " + amount);
+}
+function addBalance(){
+
+  let pass = document.getElementById("password").value;
+
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  let id = document.getElementById("uid").value;
+  let amount = document.getElementById("amount").value;
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  let user = users.find(u => u.id == id);
+
+  if(!user){
+    alert("❌ kullanıcı yok");
+    return;
+  }
+
+  // 🔥 إضافة الرصيد
+  let amountNum = Number(amount);
+
+user.balance = (user.balance || 0) + amountNum;
+
+// 🔥 نخزن الإيداع الأساسي
+user.deposit = (user.deposit || 0) + amountNum;
+
+  localStorage.setItem("users", JSON.stringify(users));
+
+  // 🔥 تشغيل التايمر 24 ساعة
+  
+  user.timerEnd = new Date().getTime() + (24 * 60 * 60 * 1000);
+localStorage.setItem("users", JSON.stringify(users));
+
+  alert("✅ eklendi: " + amount);
+}
+function finishTimer(){
+
+  let pass = document.getElementById("password").value;
+
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  let id = document.getElementById("uid").value;
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  let user = users.find(u => u.id == id);
+
+  if(!user){
+    alert("❌ kullanıcı yok");
+    return;
+  }
+
+  // 🔥 إنهاء التايمر فوراً
+  user.timerEnd = new Date().getTime() - 1000;
+
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("✅ zaman bitti!");
+}
+</script>
+
+</body>
+</html>
