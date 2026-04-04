@@ -118,6 +118,7 @@ body {
 
   background: linear-gradient(90deg, #00ffc8, #00bcd4);
   -webkit-background-clip: text;
+  background-clip: text; /* ✅ أضفنا هذا */
   -webkit-text-fill-color: transparent;
 
   font-size: 24px;
@@ -308,7 +309,7 @@ let t = texts[lang];
   }
 
   // 🔥 users list جديد
-  let users = JSON.parse(localStorage.getItem("users")) || [];
+  
 
   // 🔹 تسجيل
   if (!isLogin) {
