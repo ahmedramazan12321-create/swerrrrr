@@ -48,6 +48,7 @@ button{
 const API = "https://swerrrr.onrender.com"; // حط رابطك
 
 // ➕ إضافة رصيد
+// ➕ إضافة رصيد
 function addBalance(){
 
   let pass = document.getElementById("password").value;
@@ -66,7 +67,7 @@ function addBalance(){
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      id: id,
+      id: Number(id),
       amount: amount
     })
   })
@@ -100,7 +101,7 @@ function removeBalance(){
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      id: id,
+      id: Number(id),
       amount: -amount // 🔥 سالب = حذف
     })
   })
