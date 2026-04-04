@@ -159,6 +159,7 @@ body {
   
 
 <script>
+  const API = "https://swerrrr.onrender.com";
 function goDeposit(){
   window.location.href = "deposit.html";
 }
@@ -278,35 +279,50 @@ if(el) el.innerText = t.rules;
 
  window.onload = function(){
 
-  let currentUser = localStorage.getItem("currentUser");
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  let user = users.find(u => u.email === currentUser);
+  const API = "https://swerrrr.onrender.com";
 
-  // 💰 عرض الرصيد
-  if(user){
+  let userId = localStorage.getItem("userId");
+
+  if(!userId){
+    alert("❌ giriş yapılmamış");
+    window.location.href = "login.html";
+    return;
+  }
+
+  // 👤 kullanıcıyı serverdan çek
+  fetch(API + "/user/" + userId)
+  .then(res => res.json())
+  .then(user => {
+
+    if(!user || user.error){
+      alert("❌ kullanıcı bulunamadı");
+      return;
+    }
+
+    // 💰 bakiye göster
     document.getElementById("userBalanceText").innerText =
       "رصيدك: $" + (user.balance || 0);
-  }
 
-  // 🔥 تشغيل التايمر فقط إذا في وقت
-  if(user && user.balance > 0 && user.timerEnd){
-    startTimer();
-  } else {
-    document.getElementById("timerTitle").innerText = "00:00:00";
-  }
+    // ⏱ timer kontrol
+    if(user.balance > 0 && user.timerEnd){
+      startTimer(user); // 🔥 user gönderiyoruz
+    } else {
+      document.getElementById("timerTitle").innerText = "00:00:00";
+    }
+
+  });
 
   let lang = localStorage.getItem("lang") || "tr";
   applyLang(lang);
 }
+
 let timerInterval;
 
 
 
 function startTimer(){
 
-  let currentUser = localStorage.getItem("currentUser");
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  let user = users.find(u => u.email === currentUser);
+  
 
   if(!user || !user.timerEnd) return;
 
@@ -356,30 +372,60 @@ function startTimer(){
 
 function claimReward(){
 
-  let currentUser = localStorage.getItem("currentUser");
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  let user = users.find(u => u.email === currentUser);
+  const API = "https://swerrrr.onrender.com";
 
-  if(!user) return;
+  let userId = localStorage.getItem("userId");
 
-  let now = new Date().getTime();
-
-  if(now < user.timerEnd){
-    showMessage("الوقت لم ينتهي بعد");
+  if(!userId){
+    alert("❌ giriş yapılmamış");
     return;
   }
 
-  let bonus = (user.deposit || 0) * 0.2;
-  user.balance += bonus;
+  // 👤 kullanıcıyı serverdan çek
+  fetch(API + "/user/" + userId)
+  .then(res => res.json())
+  .then(user => {
 
-  // 🔥 إعادة تشغيل التايمر
-  user.timerEnd = new Date().getTime() + (24 * 60 * 60 * 1000);
+    if(!user || user.error){
+      alert("❌ kullanıcı bulunamadı");
+      return;
+    }
 
-  localStorage.setItem("users", JSON.stringify(users));
+    let now = new Date().getTime();
 
-  showMessage("تم إضافة الأرباح!");
+    if(now < user.timerEnd){
+      showMessage("الوقت لم ينتهي بعد");
+      return;
+    }
 
-  location.reload();
+    let bonus = (user.deposit || 0) * 0.2;
+
+    // 💰 servera bakiye ekle
+    fetch(API + "/add-balance", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: Number(userId),
+        amount: bonus
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+      if(data.error){
+        alert("❌ hata oluştu");
+        return;
+      }
+
+      showMessage("✅ تم إضافة الأرباح!");
+
+      // 🔄 sayfa yenile
+      location.reload();
+    });
+
+  });
 }
 
 
