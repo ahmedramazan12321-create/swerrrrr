@@ -1,5 +1,5 @@
 // 🌐 رابط السيرفر
-const API = "http://localhost:3000";
+const API = "https://swerrrr.onrender.com";
 
 // 🔥 تسجيل
 function register() {
