@@ -10,8 +10,8 @@ app.use(cors());
 // 📁 عرض الموقع
 app.use(express.static(path.join(__dirname)));
 
-// 🔗 اتصال MongoDB (تم تصحيحه)
-mongoose.connect("mongodb+srv://kabusbaba:Ahmed%4012321@cluster0.zho3agc.mongodb.net/myapp?retryWrites=true&w=majority")
+// 🔗 اتصال MongoDB (مهم: استبدل الرابط إذا تغيّر)
+mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:k9Hn6r2M8J6zgls7@cluster0.qtdzrfm.mongodb.net/myapp?retryWrites=true&w=majority")
 .then(() => console.log("MongoDB connected ✅"))
 .catch(err => console.log("Mongo error:", err));
 
@@ -19,20 +19,22 @@ mongoose.connect("mongodb+srv://kabusbaba:Ahmed%4012321@cluster0.zho3agc.mongodb
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
-  id: Number,
+  id: { type: Number, unique: true },
   balance: { type: Number, default: 0 }
 });
 
 const User = mongoose.model("User", UserSchema);
 
-// 🔢 ID آمن
+// 🔢 توليد ID بدون تكرار
 async function generateId() {
   let id;
   let exists;
+
   do {
     id = Math.floor(100000 + Math.random() * 900000);
     exists = await User.findOne({ id });
   } while (exists);
+
   return id;
 }
 
@@ -48,13 +50,14 @@ app.post("/register", async (req, res) => {
     let exists = await User.findOne({ email });
     if (exists) return res.json({ error: "email exists" });
 
-    let user = new User({
+    const newUser = new User({
       email,
       password,
-      id: await generateId()
+      id: await generateId(),
+      balance: 0
     });
 
-    await user.save();
+    await newUser.save();
 
     res.json({ success: true });
   } catch (err) {
@@ -76,6 +79,7 @@ app.post("/login", async (req, res) => {
 
     res.json(user);
   } catch (err) {
+    console.log(err);
     res.json({ error: "server error" });
   }
 });
@@ -83,12 +87,13 @@ app.post("/login", async (req, res) => {
 // 👤 get user
 app.get("/user/:id", async (req, res) => {
   try {
-    let user = await User.findOne({ id: req.params.id });
+    let user = await User.findOne({ id: Number(req.params.id) });
 
     if (!user) return res.json({ error: "not found" });
 
     res.json(user);
-  } catch {
+  } catch (err) {
+    console.log(err);
     res.json({ error: "server error" });
   }
 });
@@ -98,7 +103,7 @@ app.post("/add-balance", async (req, res) => {
   try {
     const { id, amount } = req.body;
 
-    let user = await User.findOne({ id });
+    let user = await User.findOne({ id: Number(id) });
 
     if (!user) return res.json({ error: "no user" });
 
@@ -106,7 +111,8 @@ app.post("/add-balance", async (req, res) => {
     await user.save();
 
     res.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.log(err);
     res.json({ error: "server error" });
   }
 });
