@@ -50,40 +50,38 @@ function register() {
 
 // 🔑 3. Giriş Yapma Fonksiyonu (Login)
 function login() {
-  const emailInput = document.getElementById("loginEmail");
-  const passwordInput = document.getElementById("loginPassword");
-
-  const email = emailInput.value.trim().toLowerCase();
-  const password = passwordInput.value;
+  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+  const password = document.getElementById("loginPassword").value;
 
   if (!email || !password) {
-    alert("Email ve şifre boş bırakılamaz! ⚠️");
+    alert("Boş bırakma!");
     return;
   }
 
   fetch(API + "/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({ email, password })
   })
   .then(res => res.json())
   .then(data => {
-    if (data.error) {
-      alert("❌ Giriş Başarısız: " + data.error);
-    } else {
-      // 🚀 VERİLERİ SAKLA (Kritik Bölge)
-      // Server'dan gelen verilerin isimlerine (data.id vb.) dikkat!
-      localStorage.setItem("userId", data.id); 
-      localStorage.setItem("currentUser", data.email);
-      localStorage.setItem("userBalance", data.balance || 0);
 
-      alert("Giriş başarılı! Hoş geldiniz. ✅");
-      window.location.href = "dashboard.html";
+    if (data.error) {
+      alert("❌ Hata: " + data.error);
+      return;
     }
+
+    localStorage.setItem("userId", data.id);
+
+    alert("Giriş başarılı!");
+    window.location.href = "dashboard.html";
+
   })
   .catch(err => {
-    console.error("Giriş hatası:", err);
-    alert("Sunucu şu an yanıt vermiyor, lütfen biraz sonra tekrar deneyin! 🔥");
+    console.error(err);
+    alert("Server bağlantı hatası!");
   });
 }
 
