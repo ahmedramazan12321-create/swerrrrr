@@ -66,27 +66,24 @@ function login() {
     body: JSON.stringify({ email, password })
   })
   .then(res => res.json())
-  .then(data => {
+.then(data => {
 
-    if (data.error) {
-      alert("❌ Hata: " + data.error);
-      return;
-    }
+  if (data.error) {
+    alert("❌ Hata: " + data.error);
+    return;
+  }
 
-    localStorage.setItem("userId", data.id);
+  // 🔥 الحل هنا
+  localStorage.setItem("userId", data.userId);
 
-    alert("Giriş başarılı!");
-    window.location.href = "dashboard.html";
+  alert("Giriş başarılı!");
+  window.location.href = "dashboard.html";
 
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Server bağlantı hatası!");
-  });
-}
+})
 
 // 🚪 4. Çıkış Yapma Fonksiyonu
 function logout() {
     localStorage.clear();
     window.location.href = "index.html";
+}
 }
