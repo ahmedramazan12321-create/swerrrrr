@@ -43,7 +43,7 @@ button{
 
 <button onclick="addBalance()">Add Balance</button>
 <button onclick="removeBalance()">Remove Balance</button>
-<button onclick="finishTimer()">Finish Timer</button>
+
 <script>
 const API = "https://swerrrrr.onrender.com";
 
@@ -51,14 +51,18 @@ const API = "https://swerrrrr.onrender.com";
 function addBalance(){
 
   let pass = document.getElementById("password").value;
+  let id = document.getElementById("uid").value;
+  let amount = document.getElementById("amount").value;
 
   if(pass !== "kbs"){
     alert("❌ Şifre yanlış!");
     return;
   }
 
-  let id = document.getElementById("uid").value;
-  let amount = Number(document.getElementById("amount").value);
+  if(!id || !amount){
+    alert("❌ boş bırakma!");
+    return;
+  }
 
   fetch(API + "/add-balance", {
     method: "POST",
@@ -67,16 +71,24 @@ function addBalance(){
     },
     body: JSON.stringify({
       id: Number(id),
-      amount: amount
+      amount: Number(amount)
     })
   })
   .then(res => res.json())
   .then(data => {
+
+    console.log("SERVER RESPONSE:", data); // 🔥 مهم
+
     if(data.error){
-      alert("❌ kullanıcı bulunamadı");
+      alert("❌ Hata: " + data.error);
     } else {
-      alert("✅ bakiye eklendi");
+      alert("✅ Bakiye eklendi! Yeni bakiye: " + data.balance);
     }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ Server hatası!");
   });
 }
 
@@ -84,14 +96,18 @@ function addBalance(){
 function removeBalance(){
 
   let pass = document.getElementById("password").value;
+  let id = document.getElementById("uid").value;
+  let amount = document.getElementById("amount").value;
 
   if(pass !== "kbs"){
     alert("❌ Şifre yanlış!");
     return;
   }
 
-  let id = document.getElementById("uid").value;
-  let amount = Number(document.getElementById("amount").value);
+  if(!id || !amount){
+    alert("❌ boş bırakma!");
+    return;
+  }
 
   fetch(API + "/add-balance", {
     method: "POST",
@@ -100,16 +116,24 @@ function removeBalance(){
     },
     body: JSON.stringify({
       id: Number(id),
-      amount: -amount
+      amount: -Number(amount)
     })
   })
   .then(res => res.json())
   .then(data => {
+
+    console.log("SERVER RESPONSE:", data); // 🔥 مهم
+
     if(data.error){
-      alert("❌ kullanıcı bulunamadı");
+      alert("❌ Hata: " + data.error);
     } else {
-      alert("✅ bakiye silindi");
+      alert("✅ Bakiye silindi! Yeni bakiye: " + data.balance);
     }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ Server hatası!");
   });
 }
 </script>
