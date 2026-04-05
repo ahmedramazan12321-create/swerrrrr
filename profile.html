@@ -111,6 +111,12 @@ body {
 </div>
 
 <script>
+  let userId = localStorage.getItem("userId");
+
+if (!userId) {
+  alert("Oturum bulunamadı, tekrar giriş yapın!");
+  window.location.href = "login.html";
+}
 window.onload = function() {
   const emailEl = document.getElementById("email");
   const userIdEl = document.getElementById("userId");
