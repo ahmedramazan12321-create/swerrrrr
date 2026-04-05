@@ -159,7 +159,7 @@ body {
   
 
 <script>
-  const API = "https://swerrrr.onrender.com";
+  const API = "https://swerrrrr.onrender.com";
 function goDeposit(){
   window.location.href = "deposit.html";
 }
@@ -452,6 +452,69 @@ function showMessage(text){
   setTimeout(()=>{
     msg.remove();
   },2000);
+}
+// 🔥 جلب بيانات المستخدم + التايمر
+function loadUser() {
+  let id = localStorage.getItem("userId");
+
+  if(!id) return;
+
+  fetch(API + "/user/" + id)
+    .then(res => res.json())
+    .then(user => {
+
+      if(user.error) return;
+
+      // 💰 الرصيد
+      document.getElementById("userBalanceText").innerText =
+        "رصيدك: $" + user.balance;
+
+      // ⏱️ التايمر
+      let now = Date.now();
+      let diff = (user.timerEnd || 0) - now;
+
+      if (diff <= 0) {
+        document.getElementById("timerTitle").innerText = "00:00:00";
+        document.getElementById("claimBtn").classList.remove("disabled-btn");
+      } else {
+
+        let h = Math.floor(diff / (1000 * 60 * 60));
+        let m = Math.floor((diff / (1000 * 60)) % 60);
+        let s = Math.floor((diff / 1000) % 60);
+
+        document.getElementById("timerTitle").innerText =
+          `${h}:${m}:${s}`;
+      }
+
+    });
+}
+
+// تشغيل أول مرة
+loadUser();
+
+// تحديث كل ثانية
+setInterval(loadUser, 1000);
+function claimReward() {
+  let id = localStorage.getItem("userId");
+
+  fetch(API + "/claim", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if(data.error){
+      alert(data.error);
+    } else {
+      alert("✅ تم استلام الأرباح");
+      loadUser(); // 🔥 تحديث مباشر
+    }
+
+  });
 }
 </script>
 <script src="common.js"></script>
