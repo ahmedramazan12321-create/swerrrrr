@@ -17,11 +17,16 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   id: { type: Number, unique: true },
-  balance: { type: Number, default: 0 }
+  balance: { type: Number, default: 0 },
+
+  // 🔥 مهم
+  initialDeposit: { type: Number, default: 0 },
+  timerEnd: { type: Number, default: 0 }
 });
 
 const User = mongoose.model("User", UserSchema);
 
+// توليد ID
 async function generateId() {
   let id;
   let exists;
@@ -50,7 +55,9 @@ app.post("/register", async (req, res) => {
       email,
       password,
       id: await generateId(),
-      balance: 0
+      balance: 0,
+      initialDeposit: 0,
+      timerEnd: 0
     });
 
     await newUser.save();
@@ -63,7 +70,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// LOGIN ✅ (تم إصلاحه)
+// LOGIN
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -74,7 +81,7 @@ app.post("/login", async (req, res) => {
       return res.json({ error: "wrong" });
     }
 
-    res.json(user); // 🔥 مهم
+    res.json(user);
 
   } catch (err) {
     console.log(err);
@@ -97,7 +104,7 @@ app.get("/user/:id", async (req, res) => {
   }
 });
 
-// ADD BALANCE ✅ (تم إصلاحه)
+// 🔥 ADD BALANCE (تم إصلاحه بالكامل)
 app.post("/add-balance", async (req, res) => {
   try {
     const { id, amount } = req.body;
@@ -106,10 +113,51 @@ app.post("/add-balance", async (req, res) => {
 
     if (!user) return res.json({ error: "no user" });
 
+    // أول إيداع فقط
+    if (user.initialDeposit === 0 && amount > 0) {
+      user.initialDeposit = Number(amount);
+    }
+
+    // إضافة الرصيد
     user.balance += Number(amount);
+
+    // 🔥 تشغيل التايمر 24 ساعة
+    user.timerEnd = Date.now() + 24 * 60 * 60 * 1000;
+
     await user.save();
 
-    res.json({ success: true, balance: user.balance }); // 🔥 مهم
+    res.json({ success: true, balance: user.balance });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ error: "server error" });
+  }
+});
+
+// 🔥 CLAIM (زر استلام الأرباح)
+app.post("/claim", async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    let user = await User.findOne({ id: Number(id) });
+
+    if (!user) return res.json({ error: "no user" });
+
+    if (Date.now() < user.timerEnd) {
+      return res.json({ error: "timer not finished" });
+    }
+
+    // الربح ثابت (20% من أول إيداع)
+    let profit = user.initialDeposit * 0.2;
+
+    user.balance += profit;
+
+    // إعادة تشغيل التايمر
+    user.timerEnd = Date.now() + 24 * 60 * 60 * 1000;
+
+    await user.save();
+
+    res.json({ success: true, balance: user.balance });
 
   } catch (err) {
     console.log(err);
@@ -122,7 +170,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// START SERVER
+// START
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
