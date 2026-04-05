@@ -59,7 +59,7 @@ app.post("/register", async (req, res) => {
 
     await newUser.save();
 
-    res.json({ success: true });
+    res.json({ success: true, id: newUser.id });
   } catch (err) {
     console.log(err);
     res.json({ error: "server error" });
@@ -77,12 +77,7 @@ app.post("/login", async (req, res) => {
       return res.json({ error: "wrong" });
     }
 
-    res.json(user);
-  } catch (err) {
-    console.log(err);
-    res.json({ error: "server error" });
-  }
-});
+    
 
 // 👤 get user
 app.get("/user/:id", async (req, res) => {
@@ -110,12 +105,7 @@ app.post("/add-balance", async (req, res) => {
     user.balance += Number(amount);
     await user.save();
 
-    res.json({ success: true });
-  } catch (err) {
-    console.log(err);
-    res.json({ error: "server error" });
-  }
-});
+    
 
 // 🏠 الصفحة الرئيسية
 app.get("/", (req, res) => {
