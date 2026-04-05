@@ -361,7 +361,7 @@ function applyLang(lang){
     return;
   }
 
-  msg.innerText = "Kayıt başarılı! ID: " + data.id;
+  msg.innerText = "Kayıt başarılı! ID: " + data.userId;
   msg.style.color = "lightgreen";
 
   setTimeout(() => {
@@ -448,7 +448,7 @@ function installApp() {
     });
   }
 }
-
+window.location.href = "login.html";
 </script>
 <script>
 function closePage(){
