@@ -66,11 +66,23 @@ app.post("/login", async (req, res) => {
 
 // 3. Kullanıcı Bilgilerini Çek (Dashboard ve Görev sayfası için)
 app.get("/user/:id", async (req, res) => {
-  const user = await User.findOne({ id: Number(req.params.id) });
-  if (user) {
+  try {
+
+    const id = Number(req.params.id);
+
+    if(isNaN(id)){
+      return res.json({ error: "invalid id" });
+    }
+
+    let user = await User.findOne({ id });
+
+    if (!user) return res.json({ error: "not found" });
+
     res.json(user);
-  } else {
-    res.json({ error: "Kullanıcı bulunamadı" });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ error: "server error" });
   }
 });
 
