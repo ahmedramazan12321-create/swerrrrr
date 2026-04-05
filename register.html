@@ -18,7 +18,7 @@ body{
   overflow:hidden;
 }
 
-/* 🔥 Glow background */
+/* 🔥 Glow */
 body::before{
   content:"";
   position:absolute;
@@ -31,17 +31,21 @@ body::before{
   left:-100px;
 }
 
-/* 🌐 LANGUAGE */
-.lang-box{position:fixed;top:15px;right:15px;z-index:999;}
+/* 🌐 LANGUAGE (FIXED + LUXURY) */
+.lang-box{
+  position:fixed;
+  top:15px;
+  right:15px;
+  transform: translateX(-8px);
+  z-index:999;
+}
 .lang-btn{
   width:50px;height:50px;border-radius:50%;
   background:linear-gradient(135deg,gold,orange);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
   box-shadow:0 0 20px gold,0 0 40px rgba(255,215,0,0.6);
-  transition:0.3s;
 }
-.lang-btn:hover{transform:scale(1.1);}
 .lang-menu{
   display:none;
   margin-top:10px;
@@ -52,76 +56,53 @@ body::before{
 .lang-menu div{
   padding:12px;
   cursor:pointer;
-  color:white;
-  transition:0.2s;
 }
 .lang-menu div:hover{
-  background:gold;
-  color:black;
+  background:gold;color:black;
 }
 
-/* 💎 CONTAINER */
-.container{
-  width:100%;
-  max-width:420px;
-  padding:20px;
-  text-align:center;
-  z-index:1;
-}
-
-/* 🔥 LOGO */
+/* UI */
+.container{width:100%;max-width:420px;padding:20px;text-align:center;}
 .logo{
   width:110px;height:110px;border-radius:50%;
   background:url('https://i.ibb.co/NnY0jXCx/IMG-20240322-WA0000.jpg') center/cover;
   margin:auto;
-  box-shadow:0 0 25px rgba(0,255,255,0.7),0 0 60px rgba(0,255,255,0.2);
+  box-shadow:0 0 25px cyan;
 }
-
-/* ✨ TITLE */
 .title{
   font-size:34px;
   color:#b6ff00;
   margin:20px 0;
   text-shadow:0 0 15px #b6ff00;
 }
-
-/* 💎 CARD */
 .card{
   padding:30px;
   border-radius:25px;
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,0.1);
   box-shadow:0 0 30px rgba(0,255,200,0.2);
-  transition:0.3s;
 }
-.card:hover{transform:translateY(-5px);}
 
-/* INPUT */
+/* inputs */
 input{
   width:100%;
   padding:15px;
   margin:12px 0;
   border-radius:12px;
   border:none;
-  outline:none;
   background:rgba(255,255,255,0.1);
   color:white;
-  font-size:15px;
 }
-input::placeholder{color:#ccc;}
 
-/* BUTTON */
+/* button */
 button{
   width:100%;
   padding:15px;
-  margin-top:10px;
   border:none;
   border-radius:12px;
   background:linear-gradient(90deg,#00f0ff,#0072ff);
   color:white;
   font-weight:bold;
-  font-size:16px;
   cursor:pointer;
   transition:0.3s;
 }
@@ -130,16 +111,14 @@ button:hover{
   box-shadow:0 0 20px #00f0ff;
 }
 
-/* SWITCH */
-.switch{
-  margin-top:15px;
+/* message */
+#msg{
+  margin-top:10px;
   font-size:14px;
-  color:#42a5f5;
-  cursor:pointer;
+  min-height:20px;
 }
-.switch:hover{text-decoration:underline;}
 
-/* 🔄 LOADER */
+/* loader */
 #loader{
   position:fixed;
   top:0;left:0;
@@ -156,15 +135,8 @@ button:hover{
   border-top:6px solid #00f0ff;
   border-radius:50%;
   animation:spin 1s linear infinite;
-  box-shadow:0 0 25px #00f0ff;
 }
 @keyframes spin{100%{transform:rotate(360deg);}}
-
-/* 📱 MOBILE */
-@media(max-width:600px){
-  .title{font-size:28px;}
-  .logo{width:90px;height:90px;}
-}
 </style>
 </head>
 
@@ -174,9 +146,9 @@ button:hover{
 <div class="lang-box">
   <div class="lang-btn" onclick="toggleLang()">🌐</div>
   <div class="lang-menu" id="langMenu">
-    <div onclick="setLang('tr')">🇹🇷 Türkçe</div>
-    <div onclick="setLang('en')">🇺🇸 English</div>
-    <div onclick="setLang('ar')">🇸🇦 العربية</div>
+    <div onclick="setLang('tr')">Türkçe</div>
+    <div onclick="setLang('en')">English</div>
+    <div onclick="setLang('ar')">العربية</div>
   </div>
 </div>
 
@@ -195,18 +167,13 @@ button:hover{
 
     <button onclick="register()" id="btn">Kayıt Ol</button>
 
-    <p class="switch" onclick="window.location.href='login.html'" id="switch">
-      Zaten hesabın var mı? Giriş Yap
-    </p>
+    <p id="msg"></p>
 
   </div>
 
 </div>
 
-<!-- 🔄 LOADER -->
-<div id="loader">
-  <div class="spinner"></div>
-</div>
+<div id="loader"><div class="spinner"></div></div>
 
 <script src="app.js"></script>
 
