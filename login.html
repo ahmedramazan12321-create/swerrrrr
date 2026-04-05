@@ -1,22 +1,111 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Giriş Yap</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOLAR - Giriş</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+
+body{
+  min-height:100dvh;
+  display:flex;justify-content:center;align-items:center;
+  background:radial-gradient(circle at top,#0a1f44,#000814 70%);
+  color:white;
+}
+
+/* 🔥 Language button */
+.lang-box{position:fixed;top:15px;right:15px;z-index:999;}
+.lang-btn{
+  width:45px;height:45px;border-radius:50%;
+  background:linear-gradient(135deg,gold,orange);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:0 0 15px gold,0 0 30px rgba(255,215,0,0.5);
+}
+.lang-menu{
+  display:none;margin-top:10px;
+  background:#111;border-radius:12px;overflow:hidden;
+}
+.lang-menu div{padding:10px;color:white;cursor:pointer;}
+.lang-menu div:hover{background:gold;color:black;}
+
+/* Loader */
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#000814;display:none;
+  justify-content:center;align-items:center;z-index:9999;
+}
+.spinner{
+  width:70px;height:70px;
+  border:5px solid rgba(255,255,255,0.1);
+  border-top:5px solid #00f0ff;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{100%{transform:rotate(360deg);}}
+
+/* UI */
+.container{width:100%;max-width:420px;padding:20px;text-align:center;}
+.logo{
+  width:100px;height:100px;border-radius:50%;
+  background:url('https://i.ibb.co/NnY0jXCx/IMG-20240322-WA0000.jpg') center/cover;
+  margin:0 auto 10px;
+  box-shadow:0 0 20px cyan;
+}
+.title{font-size:32px;color:#b6ff00;margin-bottom:20px;}
+.card{
+  padding:25px;border-radius:20px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(15px);
+}
+input{
+  width:100%;padding:14px;margin:10px 0;
+  border:none;border-radius:10px;
+  background:rgba(255,255,255,0.1);color:white;
+}
+button{
+  width:100%;padding:14px;border:none;border-radius:10px;
+  background:linear-gradient(90deg,#00f0ff,#0072ff);
+  color:white;font-weight:bold;cursor:pointer;
+}
+.switch{margin-top:15px;font-size:13px;color:#42a5f5;cursor:pointer;}
+</style>
 </head>
+
 <body>
 
-<div class="form-container">
-  <h2>Giriş Yap</h2>
-
-  <input type="email" id="loginEmail" placeholder="E-posta">
-  <input type="password" id="loginPassword" placeholder="Şifre">
-
-  <button onclick="login()">Giriş Yap</button>
-
-  <p>Hesabın yok mu? <a href="register.html">Üye Ol</a></p>
+<!-- 🌐 LANGUAGE -->
+<div class="lang-box">
+  <div class="lang-btn" onclick="toggleLang()">🌐</div>
+  <div class="lang-menu" id="langMenu">
+    <div onclick="setLang('tr')">Türkçe</div>
+    <div onclick="setLang('en')">English</div>
+    <div onclick="setLang('ar')">العربية</div>
+  </div>
 </div>
+
+<div class="container">
+  <div class="logo"></div>
+  <div class="title">DOLAR</div>
+
+  <div class="card">
+    <h2 id="title">Giriş Yap</h2>
+
+    <input id="loginEmail" placeholder="E-posta">
+    <input id="loginPassword" type="password" placeholder="Şifre">
+
+    <button onclick="login()" id="btn">Giriş Yap</button>
+
+    <p class="switch" onclick="window.location.href='register.html'" id="switch">
+      Hesabın yok mu? Üye Ol
+    </p>
+  </div>
+</div>
+
+<!-- Loader -->
+<div id="loader"><div class="spinner"></div></div>
 
 <script src="app.js"></script>
 </body>
