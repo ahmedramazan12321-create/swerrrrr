@@ -159,6 +159,12 @@ body {
   
 
 <script>
+  let userId = localStorage.getItem("userId");
+
+if (!userId) {
+  alert("Oturum bulunamadı, tekrar giriş yapın!");
+  window.location.href = "login.html";
+}
   const API = "https://swerrrrr.onrender.com";
 function goDeposit(){
   window.location.href = "deposit.html";
