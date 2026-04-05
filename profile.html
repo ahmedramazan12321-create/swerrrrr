@@ -111,99 +111,59 @@ body {
 </div>
 
 <script>
-window.onload = function(){
+window.onload = function() {
+  const emailEl = document.getElementById("email");
+  const userIdEl = document.getElementById("userId");
+  const balanceEl = document.getElementById("balance");
 
-  // 🔥 المستخدم الحالي
-  let currentUser = localStorage.getItem("currentUser");
-  window.onload = function(){
+  // 1. Hafızadan ID al
+  let storedId = localStorage.getItem("userId");
+  console.log("Hafızadaki ID:", storedId);
 
-  let id = localStorage.getItem("userId");
-
-  fetch("https://swerrrr.onrender.com/user/" + id)
-  .then(res => res.json())
-  .then(user => {
-
-    if(user.error){
-      document.getElementById("email").innerText = "Error";
-      return;
-    }
-
-    document.getElementById("email").innerText = user.email;
-    document.getElementById("userId").innerText = user.id;
-    document.getElementById("balance").innerText = user.balance;
-
-  });
-
-}
-
-  let user = users.find(u => u.email === currentUser);
-
-  // ✅ عرض البيانات الصحيحة
-  if(user){
-    document.getElementById("email").innerText = user.email;
-    document.getElementById("userId").innerText = user.id;
-    document.getElementById("balance").innerText = user.balance || 0;
-  } else {
-    document.getElementById("email").innerText = "No user";
-    document.getElementById("userId").innerText = "-";
-    document.getElementById("balance").innerText = "0";
+  // ID yoksa veya hatalıysa giriş sayfasına gönder
+  if (!storedId || storedId === "undefined" || storedId === "null") {
+    alert("Oturum bulunamadı, lütfen tekrar giriş yapın.");
+    window.location.href = "login.html";
+    return;
   }
 
-  // 🌐 اللغة
-  let lang = localStorage.getItem("lang") || "tr";
-  applyLang(lang);
+  // 2. Server'a istek at
+  // Not: API adresinin sonuna ID'yi düzgün eklediğimizden emin oluyoruz
+  const profileApiUrl = "https://swerrrrr.onrender.com/user/" + storedId;
+
+  fetch(profileApiUrl)
+    .then(res => {
+      if (!res.ok) throw new Error("Server hatası: " + res.status);
+      return res.json();
+    })
+    .then(user => {
+      if (user.error) {
+        emailEl.innerText = "Kullanıcı bulunamadı ❌";
+        return;
+      }
+
+      // 3. Ekrana Yazdır
+      emailEl.innerText = user.email || "E-posta yok";
+      userIdEl.innerText = user.id || storedId;
+      balanceEl.innerText = (user.balance !== undefined) ? user.balance : "0";
+      
+      console.log("Veriler başarıyla getirildi:", user);
+    })
+    .catch(err => {
+      console.error("Profil yükleme hatası:", err);
+      emailEl.innerText = "Bağlantı Hatası! (Server uyanıyor olabilir)";
+      emailEl.style.color = "orange";
+    });
 }
 
-
-// 🔓 تسجيل خروج حقيقي
-function logout(){
-  localStorage.removeItem("currentUser");
-  localStorage.removeItem("userId");
+function logout() {
+  localStorage.clear();
   window.location.href = "index.html";
 }
-
-
-// 🌐 ترجمة
-const translations = {
-  tr: {
-    balance: "Toplam bakiye (USDT)",
-    logout: "Çıkış Yap",
-    nav_home: "Ev",
-    nav_vip: "VIP",
-    nav_task: "Görev",
-    nav_profile: "Ben"
-  },
-  ar: {
-    balance: "إجمالي الرصيد (USDT)",
-    logout: "تسجيل الخروج",
-    nav_home: "الرئيسية",
-    nav_vip: "VIP",
-    nav_task: "المهام",
-    nav_profile: "أنا"
-  },
-  en: {
-    balance: "Total Balance (USDT)",
-    logout: "Logout",
-    nav_home: "Home",
-    nav_vip: "VIP",
-    nav_task: "Tasks",
-    nav_profile: "Me"
-  }
-};
-
-function applyLang(lang){
-  let t = translations[lang];
-  if(!t) return;
-
-  document.querySelector(".box p").innerText = t.balance;
-  document.querySelector(".item").innerText = t.logout;
-
-  document.getElementById("nav_home").innerText = t.nav_home;
-  document.getElementById("nav_vip").innerText = t.nav_vip;
-  document.getElementById("nav_task").innerText = t.nav_task;
-  document.getElementById("nav_profile").innerText = t.nav_profile;
-}
 </script>
+
+  
+
 <div class="bottom-nav">
 
   <div class="nav-item" onclick="window.location.href='dashboard.html'">
