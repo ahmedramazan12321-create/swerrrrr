@@ -189,7 +189,7 @@ button {
   <input type="email" id="email" placeholder="E-posta">
   <input type="password" id="password" placeholder="Şifre">
 
-  <button onclick="submitForm()" id="btn">Giriş Yap</button>
+  <button onclick="login()" id="btn">Giriş Yap</button>
   <p id="msg" style="text-align:center; margin-top:10px;"></p>
 
   <div class="switch" onclick="toggleForm()" id="switchText">
@@ -199,19 +199,12 @@ button {
 </div>
 
 <script>
-  function goBack(){
-  window.history.back();
-}
- function setLang(lang){
-  localStorage.setItem("lang", lang);
-  applyLang(lang);
-}
+  // 1. Kullanıcı listesini ve dili başlat
 
-let savedLang = localStorage.getItem("lang");
-
-
+let lang = localStorage.getItem("lang") || "tr";
 let isLogin = true;
 
+// 2. Çeviri Metinleri
 const texts = {
   tr: {
     login: "Giriş Yap",
@@ -220,13 +213,12 @@ const texts = {
     password: "Şifre",
     switchLogin: "Hesabın yok mu? Üye Ol",
     switchRegister: "Zaten hesabın var mı? Giriş Yap",
-
     email_exists: "❌ Bu email zaten kayıtlı!",
-invalid_email: "Email @gmail.com ile bitmeli!",
-short_pass: "Şifre en az 6 karakter olmalı!",
-login_error: "Email veya şifre yanlış ❌"
+    invalid_email: "Email @gmail.com ile bitmeli!",
+    short_pass: "Şifre en az 6 karakter olmalı!",
+    login_error: "Email veya şifre yanlış ❌",
+    reg_success: "Kayıt başarılı! Şimdi giriş yapabilirsiniz."
   },
-
   en: {
     login: "Login",
     register: "Sign Up",
@@ -234,13 +226,12 @@ login_error: "Email veya şifre yanlış ❌"
     password: "Password",
     switchLogin: "No account? Sign Up",
     switchRegister: "Already have an account? Login",
-
     email_exists: "❌ This email is already registered!",
     invalid_email: "Email must end with @gmail.com",
     short_pass: "Password must be at least 6 characters",
-    login_error: "Wrong email or password ❌"
+    login_error: "Wrong email or password ❌",
+    reg_success: "Registration successful! Please login."
   },
-
   ar: {
     login: "تسجيل الدخول",
     register: "إنشاء حساب",
@@ -248,15 +239,54 @@ login_error: "Email veya şifre yanlış ❌"
     password: "كلمة المرور",
     switchLogin: "ليس لديك حساب؟ إنشاء حساب",
     switchRegister: "لديك حساب؟ تسجيل الدخول",
-
     email_exists: "❌ هذا البريد مستخدم بالفعل!",
     invalid_email: "يجب أن ينتهي البريد بـ @gmail.com",
     short_pass: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
-    login_error: "البريد أو كلمة المرور خاطئة ❌"
+    login_error: "البريد أو كلمة المرور خاطئة ❌",
+    reg_success: "تم التسجيل بنجاح! يمكنك الدخول الآن."
   }
 };
 
-let lang = localStorage.getItem("lang") || "tr";
+// 3. Arayüz metinlerini güncelleme fonksiyonu
+function applyLang(selectedLang) {
+  lang = selectedLang;
+  const t = texts[lang];
+  
+  document.getElementById("title").innerText = isLogin ? t.login : t.register;
+  document.getElementById("btn").innerText = isLogin ? t.login : t.register;
+  document.getElementById("email").placeholder = t.email;
+  document.getElementById("password").placeholder = t.password;
+  document.getElementById("switchText").innerText = isLogin ? t.switchLogin : t.switchRegister;
+}
+
+// Dil seçme fonksiyonu
+function setLang(newLang) {
+  localStorage.setItem("lang", newLang);
+  applyLang(newLang);
+  document.getElementById("langMenu").style.display = "none";
+}
+
+// Formu Giriş/Kayıt arasında değiştirme
+function toggleForm() {
+  isLogin = !isLogin;
+  applyLang(lang);
+  document.getElementById("msg").innerText = ""; // Mesajı temizle
+}
+
+// ANA FONKSİYON: Giriş ve Kayıt İşlemi
+
+
+// Sayfa yüklendiğinde dili ayarla
+window.onload = function() {
+  applyLang(lang);
+};
+
+// Geri gitme fonksiyonu
+function goBack() {
+  window.history.back();
+}
+
+
 
 
 
@@ -287,92 +317,112 @@ function applyLang(lang){
     isLogin ? t.switchLogin : t.switchRegister;
 }
 
-function submitForm() {
+ function login() {
+
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
   const msg = document.getElementById("msg");
-  let lang = localStorage.getItem("lang") || "tr";
-let t = texts[lang];
 
-  // 🔹 تحقق
+  let lang = localStorage.getItem("lang") || "tr";
+  let t = texts[lang];
+
+  // Email kontrol
   if (!email.endsWith("@gmail.com")) {
-    msg.innerText = t.email_exists;
+    msg.innerText = t.invalid_email;
     msg.style.color = "red";
     return;
   }
 
   if (password.length < 6) {
-    msg.innerText = "Şifre en az 6 karakter olmalı!";
+    msg.innerText = t.short_pass;
     msg.style.color = "red";
     return;
   }
 
-  // 🔥 users list جديد
-  
-
-  // 🔹 تسجيل
+  // REGISTER
   if (!isLogin) {
 
-    // ❌ منع تكرار الإيميل
-    let exists = users.find(u => u.email === email);
+    fetch("https://swerrrrr.onrender.com/register", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    email: email,
+    password: password
+  })
+})
+.then(res => res.json())
+.then(data => {
 
-    if (exists) {
-      msg.innerText = t.email_exists;
-      msg.style.color = "red";
-      return;
-    }
-
-    let lastId = localStorage.getItem("lastUserId");
-
-    if (!lastId) {
-      lastId = 200500;
-    } else {
-      lastId = Number(lastId) + 1;
-    }
-
-    localStorage.setItem("lastUserId", lastId);
-
-    // 🔥 حفظ المستخدم داخل users
-    users.push({
-      email: email,
-      password: password,
-      id: lastId
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    msg.innerText = "Kayıt başarılı! ID: " + lastId;
-    msg.style.color = "lightgreen";
-
-    setTimeout(() => {
-      toggleForm();
-      msg.innerText = "";
-    }, 1500);
-
-  } else {
-
-    // 🔐 تسجيل الدخول من users
-    let user = users.find(u => u.email === email && u.password === password);
-
-    if (user) {
-
-      localStorage.setItem("currentUser", email);
-      localStorage.setItem("userId", user.id);
-
-      msg.innerText = "Giriş başarılı!";
-      msg.style.color = "lightgreen";
-
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 1000);
-
-    } else {
-      msg.innerText = "Email veya şifre yanlış ❌";
-      msg.style.color = "red";
-    }
+  if (data.error) {
+    msg.innerText = data.error;
+    msg.style.color = "red";
+    return;
   }
-}
+
+  msg.innerText = "Kayıt başarılı! ID: " + data.id;
+  msg.style.color = "lightgreen";
+
+  setTimeout(() => {
+    toggleForm();
+    msg.innerText = "";
+  }, 1500);
+
+})
+.catch(() => {
+  msg.innerText = "Server bağlantı hatası!";
+  msg.style.color = "orange";
+});
+
+  }
+
+  // LOGIN
+  else {
+
+    fetch("https://swerrrrr.onrender.com/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    email: email,
+    password: password
+  })
+})
+.then(res => res.json())
+.then(user => {
+
+  if (user.error) {
+    msg.innerText = user.error;
+    msg.style.color = "red";
+    return;
+  }
+
+  localStorage.setItem("userId", user.id);
+
+  msg.innerText = "Giriş başarılı!";
+  msg.style.color = "lightgreen";
+
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 1000);
+
+})
+.catch(() => {
+  msg.innerText = "Server bağlantı hatası!";
+  msg.style.color = "orange";
+});
+
+} // ← هذا يقفل else
+} // ← هذا يقفل function login
+ 
+  
+  // LOGIN
+  
+  // 🔐 LOGIN
+  // =========================
+ 
 // Dil verilerini genişletiyoruz
 
 let deferredPrompt;
