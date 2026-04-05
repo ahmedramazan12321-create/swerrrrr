@@ -19,14 +19,13 @@ const UserSchema = new mongoose.Schema({
   id: { type: Number, unique: true },
   balance: { type: Number, default: 0 },
 
-  // 🔥 مهم
   initialDeposit: { type: Number, default: 0 },
   timerEnd: { type: Number, default: 0 }
 });
 
 const User = mongoose.model("User", UserSchema);
 
-// توليد ID
+// ID
 async function generateId() {
   let id;
   let exists;
@@ -104,7 +103,7 @@ app.get("/user/:id", async (req, res) => {
   }
 });
 
-// 🔥 ADD BALANCE (تم إصلاحه بالكامل)
+// 🔥 ADD BALANCE
 app.post("/add-balance", async (req, res) => {
   try {
     const { id, amount } = req.body;
@@ -113,20 +112,25 @@ app.post("/add-balance", async (req, res) => {
 
     if (!user) return res.json({ error: "no user" });
 
-    // أول إيداع فقط
+    // أول إيداع
     if (user.initialDeposit === 0 && amount > 0) {
       user.initialDeposit = Number(amount);
     }
 
-    // إضافة الرصيد
     user.balance += Number(amount);
 
-    // 🔥 تشغيل التايمر 24 ساعة
-    user.timerEnd = Date.now() + 24 * 60 * 60 * 1000;
+    // تشغيل التايمر إذا متوقف
+    if (!user.timerEnd || user.timerEnd < Date.now()) {
+      user.timerEnd = Date.now() + 24 * 60 * 60 * 1000;
+    }
 
     await user.save();
 
-    res.json({ success: true, balance: user.balance });
+    res.json({
+      success: true,
+      balance: user.balance,
+      timerEnd: user.timerEnd
+    });
 
   } catch (err) {
     console.log(err);
@@ -134,7 +138,7 @@ app.post("/add-balance", async (req, res) => {
   }
 });
 
-// 🔥 CLAIM (زر استلام الأرباح)
+// 🔥 CLAIM (خارج add-balance)
 app.post("/claim", async (req, res) => {
   try {
     const { id } = req.body;
@@ -143,21 +147,23 @@ app.post("/claim", async (req, res) => {
 
     if (!user) return res.json({ error: "no user" });
 
-    if (Date.now() < user.timerEnd) {
+    if (!user.timerEnd || Date.now() < user.timerEnd) {
       return res.json({ error: "timer not finished" });
     }
 
-    // الربح ثابت (20% من أول إيداع)
     let profit = user.initialDeposit * 0.2;
 
     user.balance += profit;
 
-    // إعادة تشغيل التايمر
     user.timerEnd = Date.now() + 24 * 60 * 60 * 1000;
 
     await user.save();
 
-    res.json({ success: true, balance: user.balance });
+    res.json({
+      success: true,
+      balance: user.balance,
+      timerEnd: user.timerEnd
+    });
 
   } catch (err) {
     console.log(err);
