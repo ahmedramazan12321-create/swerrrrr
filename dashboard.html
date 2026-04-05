@@ -375,6 +375,33 @@ body {
 
 <body>
   <script src="common.js"></script>
+  <script>
+window.onload = function(){
+
+  let id = localStorage.getItem("userId");
+
+  if(!id){
+    window.location.href = "login.html";
+    return;
+  }
+
+  fetch("https://swerrrr.onrender.com/user/" + id)
+  .then(res => res.json())
+  .then(user => {
+
+    if(user.error){
+      return;
+    }
+
+    // 🔥 عرض البيانات
+    document.getElementById("userId").innerText = user.id;
+    document.getElementById("email").innerText = user.email;
+    document.getElementById("balance").innerText = user.balance;
+
+  });
+
+}
+</script>
   
 
 <!-- 🌐 LANGUAGE -->
@@ -718,7 +745,7 @@ function openTelegram(){
   <div id="liveWithdraw"></div>
 </div>
 <script>
-const API = "https://swerrrr.onrender.com";
+const API = "https://swerrrrr.onrender.com";
 
 let index = 0;
 
