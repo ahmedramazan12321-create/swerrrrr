@@ -406,7 +406,7 @@ window.onload = function(){
     console.log("USER:", data);
 
     // مثال عرض الرصيد
-    document.querySelector(".balance span").innerText = data.balance;
+    
 
   })
   .catch(err => {
@@ -460,9 +460,8 @@ window.onload = function(){
 
   <!-- 💰 BALANCE -->
   <div class="balance">
-    <span id="balanceText">Balance</span> | <span id="balance">$0</span>
-  </div>
-
+  <span id="balance">$0</span>
+</div>
   <!-- 🔘 MENU -->
   <div class="menu">
     <div class="menu-item" onclick="openDeposit()">
