@@ -9,7 +9,7 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname)));
 
-mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:k9Hn6r2M8J6zgls7@cluster0.qtdzrfm.mongodb.net/myapp?retryWrites=true&w=majority")
+mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:12345678Aa323@cluster0.qtdzrfm.mongodb.net/myapp?retryWrites=true&w=majority")
 .then(() => console.log("MongoDB connected ✅"))
 .catch(err => console.log("Mongo error:", err));
 
