@@ -7,15 +7,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 📁 عرض الموقع
 app.use(express.static(path.join(__dirname)));
 
-// 🔗 اتصال MongoDB (مهم: استبدل الرابط إذا تغيّر)
 mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:k9Hn6r2M8J6zgls7@cluster0.qtdzrfm.mongodb.net/myapp?retryWrites=true&w=majority")
 .then(() => console.log("MongoDB connected ✅"))
 .catch(err => console.log("Mongo error:", err));
 
-// 👤 Schema
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
@@ -25,7 +22,6 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
-// 🔢 توليد ID بدون تكرار
 async function generateId() {
   let id;
   let exists;
@@ -38,7 +34,7 @@ async function generateId() {
   return id;
 }
 
-// 🟢 register
+// REGISTER
 app.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -60,13 +56,14 @@ app.post("/register", async (req, res) => {
     await newUser.save();
 
     res.json({ success: true, id: newUser.id });
+
   } catch (err) {
     console.log(err);
     res.json({ error: "server error" });
   }
 });
 
-// 🔵 login
+// LOGIN ✅ (تم إصلاحه)
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -77,9 +74,15 @@ app.post("/login", async (req, res) => {
       return res.json({ error: "wrong" });
     }
 
-    
+    res.json(user); // 🔥 مهم
 
-// 👤 get user
+  } catch (err) {
+    console.log(err);
+    res.json({ error: "server error" });
+  }
+});
+
+// GET USER
 app.get("/user/:id", async (req, res) => {
   try {
     let user = await User.findOne({ id: Number(req.params.id) });
@@ -87,13 +90,14 @@ app.get("/user/:id", async (req, res) => {
     if (!user) return res.json({ error: "not found" });
 
     res.json(user);
+
   } catch (err) {
     console.log(err);
     res.json({ error: "server error" });
   }
 });
 
-// 💰 add balance
+// ADD BALANCE ✅ (تم إصلاحه)
 app.post("/add-balance", async (req, res) => {
   try {
     const { id, amount } = req.body;
@@ -105,14 +109,20 @@ app.post("/add-balance", async (req, res) => {
     user.balance += Number(amount);
     await user.save();
 
-    
+    res.json({ success: true, balance: user.balance }); // 🔥 مهم
 
-// 🏠 الصفحة الرئيسية
+  } catch (err) {
+    console.log(err);
+    res.json({ error: "server error" });
+  }
+});
+
+// HOME
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// 🚀 تشغيل السيرفر
+// START SERVER
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
