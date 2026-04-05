@@ -43,6 +43,7 @@ button{
 
 <button onclick="addBalance()">Add Balance</button>
 <button onclick="removeBalance()">Remove Balance</button>
+<button onclick="resetTimer()">Reset Timer</button>
 
 <script>
 const API = "https://swerrrrr.onrender.com";
@@ -133,6 +134,49 @@ function removeBalance(){
   })
   .catch(err => {
     console.error(err);
+    alert("❌ Server hatası!");
+  });
+}
+function resetTimer(){
+
+  console.log("RESET CLICKED"); // 🔥 اختبار
+
+  let pass = document.getElementById("password").value;
+  let id = document.getElementById("uid").value;
+
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  if(!id){
+    alert("❌ ID boş!");
+    return;
+  }
+
+  fetch(API + "/reset-timer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: Number(id)
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    console.log("SERVER:", data); // 🔥 مهم
+
+    if(data.error){
+      alert("❌ " + data.error);
+    } else {
+      alert("✅ Timer sıfırlandı");
+    }
+
+  })
+  .catch(err => {
+    console.log(err);
     alert("❌ Server hatası!");
   });
 }
