@@ -1,89 +1,106 @@
-// 🌐 1. API Bağlantı Ayarı
 const API = window.location.hostname === "localhost"
-    ? "http://localhost:3000"
-    : "https://swerrrrr.onrender.com";
+  ? "http://localhost:3000"
+  : "https://swerrrrr.onrender.com";
 
-// 📝 2. Kayıt Olma Fonksiyonu (Register)
-function register() {
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  
-  const email = emailInput.value.trim().toLowerCase();
-  const password = passwordInput.value;
-
-  // Temel Kontroller
-  if (!email || !password) {
-    alert("Lütfen tüm alanları doldurun! ⚠️");
-    return;
+/* 🌐 LANGUAGE */
+const texts = {
+  tr: {
+    login: "Giriş Yap",
+    register: "Kayıt Ol",
+    email: "E-posta",
+    password: "Şifre",
+    switch: "Hesabın yok mu? Üye Ol"
+  },
+  en: {
+    login: "Login",
+    register: "Register",
+    email: "Email",
+    password: "Password",
+    switch: "Don't have account? Sign up"
+  },
+  ar: {
+    login: "تسجيل الدخول",
+    register: "إنشاء حساب",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    switch: "ليس لديك حساب؟ سجل"
   }
+};
 
-  if (!email.endsWith("@gmail.com")) {
-    alert("Geçerli bir Gmail adresi giriniz! (@gmail.com) 📧");
-    return;
-  }
+function toggleLang(){
+  let m=document.getElementById("langMenu");
+  m.style.display=m.style.display==="block"?"none":"block";
+}
 
-  if (password.length < 6) {
-    alert("Şifreniz güvenlik için en az 6 karakter olmalı! 🔒");
-    return;
-  }
+function setLang(lang){
+  localStorage.setItem("lang",lang);
+  applyLang(lang);
+}
 
-  // Fetch İşlemi
-  fetch(API + "/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+function applyLang(lang){
+  let t=texts[lang];
+  if(!t) return;
+
+  let title=document.getElementById("title");
+  let btn=document.getElementById("btn");
+  let email=document.querySelector("input[type='email']");
+  let pass=document.querySelector("input[type='password']");
+  let sw=document.getElementById("switch");
+
+  if(title) title.innerText = location.href.includes("register") ? t.register : t.login;
+  if(btn) btn.innerText = location.href.includes("register") ? t.register : t.login;
+  if(email) email.placeholder = t.email;
+  if(pass) pass.placeholder = t.password;
+  if(sw) sw.innerText = t.switch;
+}
+
+window.onload=()=>{
+  let lang=localStorage.getItem("lang")||"tr";
+  applyLang(lang);
+};
+
+/* REGISTER */
+function register(){
+  let email=document.getElementById("email").value;
+  let password=document.getElementById("password").value;
+
+  fetch(API+"/register",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.error) {
-      alert("❌ Hata: " + data.error);
-    } else {
-      alert("Kayıt başarılı! Giriş yapabilirsiniz. ✅");
-      window.location.href = "login.html";
-    }
-  })
-  .catch(err => {
-    console.error("Kayıt hatası:", err);
-    alert("Sunucuya bağlanılamadı. Lütfen internetinizi kontrol edin! 🌐");
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.error) return;
+
+    document.getElementById("loader").style.display="flex";
+    localStorage.setItem("userId",data.userId);
+
+    setTimeout(()=>{
+      window.location.href="dashboard.html";
+    },2000);
   });
 }
 
-// 🔑 3. Giriş Yapma Fonksiyonu (Login)
-function login() {
-  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-  const password = document.getElementById("loginPassword").value;
+/* LOGIN */
+function login(){
+  let email=document.getElementById("loginEmail").value;
+  let password=document.getElementById("loginPassword").value;
 
-  if (!email || !password) {
-    alert("Boş bırakma!");
-    return;
-  }
-
-  fetch(API + "/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, password })
+  fetch(API+"/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
   })
-  .then(res => res.json())
-.then(data => {
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.error) return;
 
-  if (data.error) {
-    alert("❌ Hata: " + data.error);
-    return;
-  }
+    document.getElementById("loader").style.display="flex";
+    localStorage.setItem("userId",data.userId);
 
-  // 🔥 الحل هنا
-  localStorage.setItem("userId", data.userId);
-
-  alert("Giriş başarılı!");
-  window.location.href = "dashboard.html";
-
-})
-
-// 🚪 4. Çıkış Yapma Fonksiyonu
-function logout() {
-    localStorage.clear();
-    window.location.href = "index.html";
-}
+    setTimeout(()=>{
+      window.location.href="dashboard.html";
+    },1500);
+  });
 }
