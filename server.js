@@ -126,6 +126,9 @@ app.post("/claim", async (req, res) => {
     res.json({ error: "Hata oluştu" });
   }
 });
+app.get("/ping", (req, res) => {
+  res.send("OK");
+});
 // 🔥 RESET TIMER
 app.post("/reset-timer", async (req, res) => {
   try {
