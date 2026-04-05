@@ -279,7 +279,7 @@ if(el) el.innerText = t.rules;
 
  window.onload = function(){
 
-  const API = "https://swerrrr.onrender.com";
+  const API = "https://swerrrrr.onrender.com";
 
   let userId = localStorage.getItem("userId");
 
@@ -304,11 +304,16 @@ if(el) el.innerText = t.rules;
       "رصيدك: $" + (user.balance || 0);
 
     // ⏱ timer kontrol
-    if(user.balance > 0 && user.timerEnd){
-      startTimer(user); // 🔥 user gönderiyoruz
-    } else {
-      document.getElementById("timerTitle").innerText = "00:00:00";
-    }
+    if(!user.timerEnd || user.timerEnd === 0){
+  document.getElementById("timerTitle").innerText = "00:00:00";
+
+  let btn = document.getElementById("claimBtn");
+  btn.classList.remove("disabled-btn");
+  btn.classList.add("active-btn");
+
+} else {
+  startTimer(user.timerEnd);
+}
 
   });
 
@@ -316,118 +321,12 @@ if(el) el.innerText = t.rules;
   applyLang(lang);
 }
 
-let timerInterval;
 
 
 
-function startTimer(){
 
-  
 
-  if(!user || !user.timerEnd) return;
-
-  let endTime = Number(user.timerEnd);
-
-  let btn = document.getElementById("claimBtn");
-
-  btn.classList.remove("active-btn");
-  btn.classList.add("disabled-btn");
-
-  function update(){
-    let now = new Date().getTime();
-    let diff = endTime - now;
-
-    if(diff <= 0){
-      document.getElementById("timerTitle").innerText = "00:00:00";
-      clearInterval(timerInterval);
-
-      btn.classList.remove("disabled-btn");
-      btn.classList.add("active-btn");
-
-      return;
-    }
-
-    let h = Math.floor(diff / (1000*60*60));
-    let m = Math.floor((diff % (1000*60*60)) / (1000*60));
-    let s = Math.floor((diff % (1000*60)) / 1000);
-
-    document.getElementById("timerTitle").innerText =
-      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
-  }
-
-  update();
-  timerInterval = setInterval(update, 1000);
-}
-    function update(){
-    let h = Math.floor(diff / (1000*60*60));
-    let m = Math.floor((diff % (1000*60*60)) / (1000*60));
-    let s = Math.floor((diff % (1000*60)) / 1000);
-
-    document.getElementById("timerTitle").innerText =
-      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
-  }
-
-  update();
-  timerInterval = setInterval(update, 1000);
-
-function claimReward(){
-
-  const API = "https://swerrrrr.onrender.com";
-
-  let userId = localStorage.getItem("userId");
-
-  if(!userId){
-    alert("❌ giriş yapılmamış");
-    return;
-  }
-
-  // 👤 kullanıcıyı serverdan çek
-  fetch(API + "/user/" + userId)
-  .then(res => res.json())
-  .then(user => {
-
-    if(!user || user.error){
-      alert("❌ kullanıcı bulunamadı");
-      return;
-    }
-
-    let now = new Date().getTime();
-
-    if(now < user.timerEnd){
-      showMessage("الوقت لم ينتهي بعد");
-      return;
-    }
-
-    let bonus = (user.deposit || 0) * 0.2;
-
-    // 💰 servera bakiye ekle
-    fetch(API + "/add-balance", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: Number(userId),
-        amount: bonus
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-      if(data.error){
-        alert("❌ hata oluştu");
-        return;
-      }
-
-      showMessage("✅ تم إضافة الأرباح!");
-
-      // 🔄 sayfa yenile
-      location.reload();
-    });
-
-  });
-}
-
+ 
 
 
 function showMessage(text){
@@ -456,37 +355,43 @@ function showMessage(text){
 // 🔥 جلب بيانات المستخدم + التايمر
 function loadUser() {
   let id = localStorage.getItem("userId");
-
   if(!id) return;
 
   fetch(API + "/user/" + id)
     .then(res => res.json())
     .then(user => {
-
-      if(user.error) return;
-
-      // 💰 الرصيد
-      document.getElementById("userBalanceText").innerText =
-        "رصيدك: $" + user.balance;
-
-      // ⏱️ التايمر
-      let now = Date.now();
-      let diff = (user.timerEnd || 0) - now;
-
-      if (diff <= 0) {
-        document.getElementById("timerTitle").innerText = "00:00:00";
-        document.getElementById("claimBtn").classList.remove("disabled-btn");
-      } else {
-
-        let h = Math.floor(diff / (1000 * 60 * 60));
-        let m = Math.floor((diff / (1000 * 60)) % 60);
-        let s = Math.floor((diff / 1000) % 60);
-
-        document.getElementById("timerTitle").innerText =
-          `${h}:${m}:${s}`;
+      // 💰 Bakiyeyi Güncelle
+      const balanceEl = document.getElementById("userBalanceText");
+      if(balanceEl) {
+        balanceEl.innerText = "رصيدك: $" + (user.balance || 0).toFixed(2);
       }
 
+      // ⏱️ Sayaç Mantığı
+      updateTimer(user.timerEnd);
     });
+}
+
+function updateTimer(timerEnd) {
+  const timerEl = document.getElementById("timerTitle");
+  const claimBtn = document.getElementById("claimBtn"); // Butona id verdiğini varsayalım
+
+  const interval = setInterval(() => {
+    let now = Date.now();
+    let diff = timerEnd - now;
+
+    if (diff <= 0) {
+      clearInterval(interval);
+      timerEl.innerText = "00:00:00";
+      if(claimBtn) claimBtn.disabled = false; // Süre bitti, butonu aktif et
+      return;
+    }
+
+    let h = Math.floor(diff / (1000 * 60 * 60));
+    let m = Math.floor((diff / (1000 * 60)) % 60);
+    let s = Math.floor((diff / 1000) % 60);
+
+    timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }, 1000);
 }
 
 // تشغيل أول مرة
@@ -515,6 +420,39 @@ function claimReward() {
     }
 
   });
+}
+let timerInterval;
+
+function startTimer(timerEnd){
+
+  clearInterval(timerInterval);
+
+  let btn = document.getElementById("claimBtn");
+
+  timerInterval = setInterval(() => {
+
+    let now = Date.now();
+    let diff = timerEnd - now;
+
+    if(diff <= 0){
+      clearInterval(timerInterval);
+
+      document.getElementById("timerTitle").innerText = "00:00:00";
+
+      btn.classList.remove("disabled-btn");
+      btn.classList.add("active-btn");
+
+      return;
+    }
+
+    let h = Math.floor(diff / (1000*60*60));
+    let m = Math.floor((diff % (1000*60*60)) / (1000*60));
+    let s = Math.floor((diff % (1000*60)) / 1000);
+
+    document.getElementById("timerTitle").innerText =
+      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+
+  },1000);
 }
 </script>
 <script src="common.js"></script>
