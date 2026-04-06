@@ -405,27 +405,30 @@ loadUser();
 
 // تحديث كل ثانية
 setInterval(loadUser, 1000);
-function claimReward() {
-  let id = localStorage.getItem("userId");
+function claimReward(){
+
+  let userId = localStorage.getItem("userId");
 
   fetch(API + "/claim", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ id })
+    body: JSON.stringify({ userId })
   })
   .then(res => res.json())
   .then(data => {
 
     if(data.error){
-      alert(data.error);
-    } else {
-      alert("✅ تم استلام الأرباح");
-      loadUser(); // 🔥 تحديث مباشر
+      alert("⏳ 24 saat bekle!");
+      return;
     }
 
+    alert("✅ Gün alındı!");
+    location.reload();
+
   });
+
 }
 let timerInterval;
 
