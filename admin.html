@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<style>
+body{
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+  padding-top:100px;
+}
+
+input{
+  display:block;
+  margin:10px auto;
+  padding:12px;
+  width:250px;
+  border-radius:10px;
+  border:none;
+}
+
+button{
+  padding:12px 20px;
+  background:orange;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🔧 Admin Panel</h2>
+
+<input id="password" placeholder="Password">
+<input id="uid" placeholder="User ID">
+<input id="amount" placeholder="Amount">
+
+<button onclick="addBalance()">Add Balance</button>
+<button onclick="removeBalance()">Remove Balance</button>
+<button onclick="resetTimer()">Reset Timer</button>
+
+<script>
+const API = "https://swerrrrr.onrender.com";
+
+// ➕ إضافة رصيد
+function addBalance(){
+
+  let pass = document.getElementById("password").value;
+  let id = document.getElementById("uid").value;
+  let amount = document.getElementById("amount").value;
+
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  if(!id || !amount){
+    alert("❌ boş bırakma!");
+    return;
+  }
+
+  fetch(API + "/add-balance", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: Number(id),
+      amount: Number(amount)
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    console.log("SERVER RESPONSE:", data); // 🔥 مهم
+
+    if(data.error){
+      alert("❌ Hata: " + data.error);
+    } else {
+      alert("✅ Bakiye eklendi! Yeni bakiye: " + data.balance);
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ Server hatası!");
+  });
+}
+
+// ➖ حذف رصيد
+function removeBalance(){
+
+  let pass = document.getElementById("password").value;
+  let id = document.getElementById("uid").value;
+  let amount = document.getElementById("amount").value;
+
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  if(!id || !amount){
+    alert("❌ boş bırakma!");
+    return;
+  }
+
+  fetch(API + "/add-balance", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: Number(id),
+      amount: -Number(amount)
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    console.log("SERVER RESPONSE:", data); // 🔥 مهم
+
+    if(data.error){
+      alert("❌ Hata: " + data.error);
+    } else {
+      alert("✅ Bakiye silindi! Yeni bakiye: " + data.balance);
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ Server hatası!");
+  });
+}
+function resetTimer(){
+
+  console.log("RESET CLICKED"); // 🔥 اختبار
+
+  let pass = document.getElementById("password").value;
+  let id = document.getElementById("uid").value;
+
+  if(pass !== "kbs"){
+    alert("❌ Şifre yanlış!");
+    return;
+  }
+
+  if(!id){
+    alert("❌ ID boş!");
+    return;
+  }
+
+  fetch(API + "/reset-timer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: Number(id)
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    console.log("SERVER:", data); // 🔥 مهم
+
+    if(data.error){
+      alert("❌ " + data.error);
+    } else {
+      alert("✅ Timer sıfırlandı");
+    }
+
+  })
+  .catch(err => {
+    console.log(err);
+    alert("❌ Server hatası!");
+  });
+}
+</script>
+
+</body>
+</html>

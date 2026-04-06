@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOLAR - Kayıt</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+
+body{
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(circle at top,#0a1f44,#000814 70%);
+  color:white;
+  overflow:hidden;
+}
+
+/* 🔥 Glow */
+body::before{
+  content:"";
+  position:absolute;
+  width:500px;
+  height:500px;
+  background:#00f0ff;
+  filter:blur(120px);
+  opacity:0.15;
+  top:-100px;
+  left:-100px;
+}
+
+/* 🌐 LANGUAGE (FIXED + LUXURY) */
+.lang-box{
+  position:fixed;
+  top:15px;
+  right:15px;
+  transform: translateX(-8px);
+  z-index:999;
+}
+.lang-btn{
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,gold,orange);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:0 0 20px gold,0 0 40px rgba(255,215,0,0.6);
+}
+.lang-menu{
+  display:none;
+  margin-top:10px;
+  background:rgba(0,0,0,0.9);
+  border-radius:15px;
+  overflow:hidden;
+}
+.lang-menu div{
+  padding:12px;
+  cursor:pointer;
+}
+.lang-menu div:hover{
+  background:gold;color:black;
+}
+
+/* UI */
+.container{width:100%;max-width:420px;padding:20px;text-align:center;}
+.logo{
+  width:110px;height:110px;border-radius:50%;
+  background:url('https://i.ibb.co/NnY0jXCx/IMG-20240322-WA0000.jpg') center/cover;
+  margin:auto;
+  box-shadow:0 0 25px cyan;
+}
+.title{
+  font-size:34px;
+  color:#b6ff00;
+  margin:20px 0;
+  text-shadow:0 0 15px #b6ff00;
+}
+.card{
+  padding:30px;
+  border-radius:25px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  box-shadow:0 0 30px rgba(0,255,200,0.2);
+}
+
+/* inputs */
+input{
+  width:100%;
+  padding:15px;
+  margin:12px 0;
+  border-radius:12px;
+  border:none;
+  background:rgba(255,255,255,0.1);
+  color:white;
+}
+
+/* button */
+button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#00f0ff,#0072ff);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 20px #00f0ff;
+}
+
+/* message */
+#msg{
+  margin-top:10px;
+  font-size:14px;
+  min-height:20px;
+}
+
+/* loader */
+#loader{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#000814;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.spinner{
+  width:80px;height:80px;
+  border:6px solid rgba(255,255,255,0.1);
+  border-top:6px solid #00f0ff;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{100%{transform:rotate(360deg);}}
+</style>
+</head>
+
+<body>
+
+<!-- 🌐 LANGUAGE -->
+<div class="lang-box">
+  <div class="lang-btn" onclick="toggleLang()">🌐</div>
+  <div class="lang-menu" id="langMenu">
+    <div onclick="setLang('tr')">Türkçe</div>
+    <div onclick="setLang('en')">English</div>
+    <div onclick="setLang('ar')">العربية</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="logo"></div>
+
+  <div class="title">DOLAR</div>
+
+  <div class="card">
+
+    <h2 id="title">Kayıt Ol</h2>
+
+    <input type="email" id="email" placeholder="E-posta">
+    <input type="password" id="password" placeholder="Şifre">
+
+    <button onclick="register()" id="btn">Kayıt Ol</button>
+
+    <p id="msg"></p>
+
+  </div>
+
+</div>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
