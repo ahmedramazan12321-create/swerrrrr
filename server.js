@@ -21,8 +21,12 @@ const UserSchema = new mongoose.Schema({
   password: String,
   id: { type: Number, unique: true },
   balance: { type: Number, default: 0 },
-  initialDeposit: { type: Number, default: 0 }, // İlk yatırılan ana para (SABİT KALIR)
-  timerEnd: { type: Number, default: 0 }        // Sayacın biteceği anın milisaniyesi
+
+  days: { type: Number, default: 0 },
+  invited: { type: Boolean, default: false },
+
+  // 🔥 هذا الجديد تضيفه هنا
+  lastClaim: { type: Number, default: 0 }
 });
 
 const User = mongoose.model("User", UserSchema);
@@ -38,6 +42,9 @@ async function generateId() {
   return id;
 }
 
+// --- API ENDPOINTLERİ ---
+
+// 1. Kayıt Ol
 // --- API ENDPOINTLERİ ---
 
 // 1. Kayıt Ol
@@ -64,7 +71,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// 3. Kullanıcı Bilgilerini Çek (Dashboard ve Görev sayfası için)
+// 3. Kullanıcı Bilgilerini Çek
 app.get("/user/:id", async (req, res) => {
   try {
 
@@ -85,6 +92,50 @@ app.get("/user/:id", async (req, res) => {
     res.json({ error: "server error" });
   }
 });
+
+
+// 🔥🔥🔥 هذا الجديد (حطه تحتهم مباشرة)
+app.post("/claim", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if(!userId){
+      return res.json({ error: "no id" });
+    }
+
+    const user = await User.findOne({ id: Number(userId) });
+
+    if (!user) {
+      return res.json({ error: "user not found" });
+    }
+
+    const now = Date.now();
+    const DAY = 24 * 60 * 60 * 1000;
+
+    // 🔥 حماية من الغش
+    if (now - (user.lastClaim || 0) < DAY) {
+      return res.json({ error: "wait" });
+    }
+
+    // ✅ زيادة اليوم
+    user.days = (user.days || 0) + 1;
+
+    // 💰 زيادة الرصيد
+    user.balance = (user.balance || 0) + 10;
+
+    // 🕒 حفظ الوقت
+    user.lastClaim = now;
+
+    await user.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ error: "server error" });
+  }
+});
+
 
 // 4. ADMIN: Bakiyeyi Ekle ve Sayacı Başlat
 // Admin panelinden birine para gönderdiğinde bu çalışır.
