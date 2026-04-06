@@ -1,43 +1,11 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile</title>
 
 <style>
-  .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 65px;
-
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-
-  background: #020617;
-  border-top: 1px solid rgba(255,255,255,0.1);
-
-  z-index: 999;
-}
-
-.nav-item {
-  flex: 1;
-  text-align: center;
-  color: #aaa;
-  font-size: 12px;
-}
-
-.nav-item span {
-  display: block;
-  font-size: 18px;
-}
-
-.nav-item.active {
-  color: gold;
-}
 body {
   margin: 0;
   font-family: Arial;
@@ -45,7 +13,6 @@ body {
   color: white;
 }
 
-/* TOP */
 .top {
   padding: 20px;
 }
@@ -84,6 +51,25 @@ body {
   border-bottom: 1px solid #333;
   cursor: pointer;
 }
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  background: #020617;
+}
+
+.nav-item {
+  flex: 1;
+  text-align: center;
+  color: #aaa;
+  padding: 10px;
+}
+
+.nav-item.active {
+  color: gold;
+}
 </style>
 </head>
 
@@ -97,81 +83,21 @@ body {
 
   <div class="info">
     <p id="email"></p>
-    <p style="color:white;">ID: <span id="userId" style="color:white;"></span></p>
+    <p>ID: <span id="userId"></span></p>
   </div>
 </div>
 
 <div class="box">
-  <p>Toplam bakiye (USDT)</p>
+  <p id="balanceText">Toplam bakiye (USDT)</p>
   <h2 id="balance">0</h2>
 </div>
 
 <div class="menu">
-  <div class="item" onclick="logout()">Çıkış Yap</div>
+  <div class="item" onclick="logout()" id="logoutBtn">Çıkış Yap</div>
 </div>
 
-<script>
-  let userId = localStorage.getItem("userId");
-
-if (!userId) {
-  alert("Oturum bulunamadı, tekrar giriş yapın!");
-  window.location.href = "login.html";
-}
-window.onload = function() {
-  const emailEl = document.getElementById("email");
-  const userIdEl = document.getElementById("userId");
-  const balanceEl = document.getElementById("balance");
-
-  // 1. Hafızadan ID al
-  let storedId = localStorage.getItem("userId");
-  console.log("Hafızadaki ID:", storedId);
-
-  // ID yoksa veya hatalıysa giriş sayfasına gönder
-  if (!storedId || storedId === "undefined" || storedId === "null") {
-    alert("Oturum bulunamadı, lütfen tekrar giriş yapın.");
-    window.location.href = "login.html";
-    return;
-  }
-
-  // 2. Server'a istek at
-  // Not: API adresinin sonuna ID'yi düzgün eklediğimizden emin oluyoruz
-  const profileApiUrl = "https://swerrrrr.onrender.com/user/" + storedId;
-
-  fetch(profileApiUrl)
-    .then(res => {
-      if (!res.ok) throw new Error("Server hatası: " + res.status);
-      return res.json();
-    })
-    .then(user => {
-      if (user.error) {
-        emailEl.innerText = "Kullanıcı bulunamadı ❌";
-        return;
-      }
-
-      // 3. Ekrana Yazdır
-      emailEl.innerText = user.email || "E-posta yok";
-      userIdEl.innerText = user.id || storedId;
-      balanceEl.innerText = (user.balance !== undefined) ? user.balance : "0";
-      
-      console.log("Veriler başarıyla getirildi:", user);
-    })
-    .catch(err => {
-      console.error("Profil yükleme hatası:", err);
-      emailEl.innerText = "Bağlantı Hatası! (Server uyanıyor olabilir)";
-      emailEl.style.color = "orange";
-    });
-}
-
-function logout() {
-  localStorage.clear();
-  window.location.href = "index.html";
-}
-</script>
-
-  
-
+<!-- NAV -->
 <div class="bottom-nav">
-
   <div class="nav-item" onclick="window.location.href='dashboard.html'">
     <span>🏠</span>
     <p id="nav_home">Ev</p>
@@ -191,7 +117,90 @@ function logout() {
     <span>👤</span>
     <p id="nav_profile">Ben</p>
   </div>
-
 </div>
+
+<script>
+const API = "https://swerrrrr.onrender.com";
+
+// 🌐 ترجمة
+const texts = {
+  tr: {
+    balance: "Toplam bakiye (USDT)",
+    logout: "Çıkış Yap",
+    nav_home: "Ev",
+    nav_vip: "VIP",
+    nav_task: "Görev",
+    nav_profile: "Ben"
+  },
+  en: {
+    balance: "Total Balance (USDT)",
+    logout: "Logout",
+    nav_home: "Home",
+    nav_vip: "VIP",
+    nav_task: "Tasks",
+    nav_profile: "Profile"
+  },
+  ar: {
+    balance: "الرصيد الإجمالي",
+    logout: "تسجيل الخروج",
+    nav_home: "الرئيسية",
+    nav_vip: "VIP",
+    nav_task: "المهام",
+    nav_profile: "حسابي"
+  }
+};
+
+// 🌐 تطبيق اللغة
+function applyLang(){
+  let lang = localStorage.getItem("lang") || "tr";
+  let t = texts[lang];
+
+  document.getElementById("balanceText").innerText = t.balance;
+  document.getElementById("logoutBtn").innerText = t.logout;
+  document.getElementById("nav_home").innerText = t.nav_home;
+  document.getElementById("nav_vip").innerText = t.nav_vip;
+  document.getElementById("nav_task").innerText = t.nav_task;
+  document.getElementById("nav_profile").innerText = t.nav_profile;
+}
+
+// 👤 جلب البيانات
+window.onload = function(){
+
+  applyLang(); // 🔥 مهم جدًا
+
+  let userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    alert("Login required");
+    window.location.href = "login.html";
+    return;
+  }
+
+  fetch(API + "/user/" + userId)
+    .then(res => res.json())
+    .then(user => {
+
+      if(user.error){
+        document.getElementById("email").innerText = "Error";
+        return;
+      }
+
+      document.getElementById("email").innerText = user.email;
+      document.getElementById("userId").innerText = user.id;
+      document.getElementById("balance").innerText = user.balance;
+
+    })
+    .catch(() => {
+      document.getElementById("email").innerText = "Server error";
+    });
+};
+
+// 🚪 خروج
+function logout(){
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+</script>
+
 </body>
 </html>
