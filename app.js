@@ -1,206 +1,153 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile</title>
+const API = window.location.hostname === "localhost"
+  ? "http://localhost:3000"
+  : "https://swerrrrr.onrender.com";
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: linear-gradient(180deg, #0a1f44, #000);
-  color: white;
-}
-
-.top {
-  padding: 20px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
-
-.info {
-  margin-top: 20px;
-}
-
-.box {
-  margin: 20px;
-  padding: 20px;
-  background: gold;
-  color: black;
-  border-radius: 15px;
-  text-align: center;
-}
-
-.menu {
-  margin: 20px;
-}
-
-.item {
-  padding: 15px;
-  border-bottom: 1px solid #333;
-  cursor: pointer;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  background: #020617;
-}
-
-.nav-item {
-  flex: 1;
-  text-align: center;
-  color: #aaa;
-  padding: 10px;
-}
-
-.nav-item.active {
-  color: gold;
-}
-</style>
-</head>
-
-<body>
-
-<div class="top">
-  <div class="logo">
-    <img src="https://i.ibb.co/NnY0jXCx/IMG-20240322-WA0000.jpg">
-    <h2>DOLAR</h2>
-  </div>
-
-  <div class="info">
-    <p id="email"></p>
-    <p>ID: <span id="userId"></span></p>
-  </div>
-</div>
-
-<div class="box">
-  <p id="balanceText">Toplam bakiye (USDT)</p>
-  <h2 id="balance">0</h2>
-</div>
-
-<div class="menu">
-  <div class="item" onclick="logout()" id="logoutBtn">Çıkış Yap</div>
-</div>
-
-<!-- NAV -->
-<div class="bottom-nav">
-  <div class="nav-item" onclick="window.location.href='dashboard.html'">
-    <span>🏠</span>
-    <p id="nav_home">Ev</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='vip.html'">
-    <span>👑</span>
-    <p id="nav_vip">VIP</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='tasks.html'">
-    <span>📊</span>
-    <p id="nav_task">Görev</p>
-  </div>
-
-  <div class="nav-item active">
-    <span>👤</span>
-    <p id="nav_profile">Ben</p>
-  </div>
-</div>
-
-<script>
-const API = "https://swerrrrr.onrender.com";
-
-// 🌐 ترجمة
+/* 🌐 LANGUAGE */
 const texts = {
   tr: {
-    balance: "Toplam bakiye (USDT)",
-    logout: "Çıkış Yap",
-    nav_home: "Ev",
-    nav_vip: "VIP",
-    nav_task: "Görev",
-    nav_profile: "Ben"
+    login: "Giriş Yap",
+    register: "Kayıt Ol",
+    email: "E-posta",
+    password: "Şifre",
+    switch: "Hesabın yok mu? Üye Ol",
+    emailUsed: "Bu email zaten kullanılmış!",
+    success: "Kayıt başarılı!"
   },
   en: {
-    balance: "Total Balance (USDT)",
-    logout: "Logout",
-    nav_home: "Home",
-    nav_vip: "VIP",
-    nav_task: "Tasks",
-    nav_profile: "Profile"
+    login: "Login",
+    register: "Register",
+    email: "Email",
+    password: "Password",
+    switch: "Don't have account? Sign up",
+    emailUsed: "This email is already used!",
+    success: "Registration successful!"
   },
   ar: {
-    balance: "الرصيد الإجمالي",
-    logout: "تسجيل الخروج",
-    nav_home: "الرئيسية",
-    nav_vip: "VIP",
-    nav_task: "المهام",
-    nav_profile: "حسابي"
+    login: "تسجيل الدخول",
+    register: "إنشاء حساب",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    switch: "ليس لديك حساب؟ سجل",
+    emailUsed: "هذا البريد مستخدم بالفعل!",
+    success: "تم التسجيل بنجاح!"
   }
 };
 
-// 🌐 تطبيق اللغة
-function applyLang(){
-  let lang = localStorage.getItem("lang") || "tr";
+/* 🌐 LANG FUNCTIONS */
+function toggleLang(){
+  let m = document.getElementById("langMenu");
+  m.style.display = m.style.display === "block" ? "none" : "block";
+}
+
+function setLang(lang){
+  localStorage.setItem("lang", lang);
+  applyLang(lang);
+}
+
+function applyLang(lang){
   let t = texts[lang];
+  if(!t) return;
 
-  document.getElementById("balanceText").innerText = t.balance;
-  document.getElementById("logoutBtn").innerText = t.logout;
-  document.getElementById("nav_home").innerText = t.nav_home;
-  document.getElementById("nav_vip").innerText = t.nav_vip;
-  document.getElementById("nav_task").innerText = t.nav_task;
-  document.getElementById("nav_profile").innerText = t.nav_profile;
+  let title = document.getElementById("title");
+  let btn = document.getElementById("btn");
+  let email = document.querySelector("input[type='email']");
+  let pass = document.querySelector("input[type='password']");
+  let sw = document.getElementById("switch");
+
+  if(title) title.innerText = location.href.includes("register") ? t.register : t.login;
+  if(btn) btn.innerText = location.href.includes("register") ? t.register : t.login;
+  if(email) email.placeholder = t.email;
+  if(pass) pass.placeholder = t.password;
+  if(sw) sw.innerText = t.switch;
 }
 
-// 👤 جلب البيانات
-window.onload = function(){
+function getLang(){
+  return localStorage.getItem("lang") || "tr";
+}
 
-  applyLang(); // 🔥 مهم جدًا
-
-  let userId = localStorage.getItem("userId");
-
-  if (!userId) {
-    alert("Login required");
-    window.location.href = "login.html";
-    return;
-  }
-
-  fetch(API + "/user/" + userId)
-    .then(res => res.json())
-    .then(user => {
-
-      if(user.error){
-        document.getElementById("email").innerText = "Error";
-        return;
-      }
-
-      document.getElementById("email").innerText = user.email;
-      document.getElementById("userId").innerText = user.id;
-      document.getElementById("balance").innerText = user.balance;
-
-    })
-    .catch(() => {
-      document.getElementById("email").innerText = "Server error";
-    });
+window.onload = () => {
+  applyLang(getLang());
 };
 
-// 🚪 خروج
-function logout(){
-  localStorage.clear();
-  window.location.href = "index.html";
-}
-</script>
+/* REGISTER */
+function register(){
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+  let msg = document.getElementById("msg");
+  let t = texts[getLang()];
 
-</body>
-</html>
+  fetch(API + "/register", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
+  })
+  .then(r => r.json())
+  .then(data => {
+
+    if(data.error){
+      if(msg){
+        msg.innerText = t.emailUsed;
+        msg.style.color = "red";
+      }
+      return;
+    }
+
+    if(msg){
+      msg.innerText = t.success;
+      msg.style.color = "lightgreen";
+    }
+
+    document.getElementById("loader").style.display = "flex";
+    localStorage.setItem("userId", data.userId);
+
+    setTimeout(()=>{
+      window.location.href = "dashboard.html";
+    },2000);
+
+  })
+  .catch(() => {
+    if(msg){
+      msg.innerText = "Server error!";
+      msg.style.color = "orange";
+    }
+  });
+}
+
+/* LOGIN */
+function login(){
+  let email = document.getElementById("loginEmail").value;
+  let password = document.getElementById("loginPassword").value;
+  let msg = document.getElementById("msg");
+  let t = texts[getLang()];
+
+  fetch(API + "/login", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({email,password})
+  })
+  .then(r => r.json())
+  .then(data => {
+
+    if(data.error){
+      if(msg){
+        msg.innerText = "Hatalı giriş!";
+        msg.style.color = "red";
+      }
+      return;
+    }
+
+    document.getElementById("loader").style.display = "flex";
+    localStorage.setItem("userId", data.userId);
+
+    setTimeout(()=>{
+      window.location.href = "dashboard.html";
+    },1500);
+
+  })
+  .catch(() => {
+    if(msg){
+      msg.innerText = "Server error!";
+      msg.style.color = "orange";
+    }
+  });
+}
