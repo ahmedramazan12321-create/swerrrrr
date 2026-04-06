@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasks</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+}
+
+/* CARD */
+.card {
+  margin: 15px;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #1e293b, #334155);
+  box-shadow: 0 0 20px rgba(0,255,200,0.2);
+}
+
+/* BALANCE BOX */
+.balance-box {
+  text-align: center;
+  padding: 15px;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.05);
+  margin: 15px 0;
+}
+
+.balance-box h1 {
+  margin: 0;
+}
+
+/* PROGRESS */
+.progress {
+  height: 6px;
+  background: #1e293b;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #00ff88;
+  border-radius: 10px;
+}
+
+/* INFO */
+.info {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+/* BUTTON */
+.btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  background: #ff5a1f;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  background: #020617;
+}
+
+.nav-item {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  color: #aaa;
+}
+
+.nav-item.active {
+  color: orange;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card" style="text-align:center">
+
+  <h1 id="timerTitle" class="timer">
+    ⏱️ 24:00:00
+  </h1>
+  <p id="userBalanceText" class="balance-small">
+  رصيدك: $0
+</p>
+
+</div>
+
+<!-- 👇 زر منفصل -->
+<button id="claimBtn" onclick="claimReward()" class="claim-btn big-btn disabled-btn">
+  استلم القيمة
+</button>
+
+<!-- 🔥 نقاط -->
+<div class="dots-box">
+  • • •
+</div>
+
+<!-- 📝 نص -->
+<p id="infoText" class="info-text">
+  بعد إيداع أموالكم يمكنكم تفعيل التايمر
+</p>
+
+<!-- ⚠️ قوانين -->
+<p id="rulesText" class="rules-text">
+  اذا تم اكتشاف اي وسيلة غش سيتم سحب رصيدكم وحظر حسابكم
+</p>
+
+</div>
+
+<!-- NAV -->
+
+
+  <div class="bottom-nav">
+
+  <div class="nav-item active" onclick="window.location.href='dashboard.html'">
+    <span>🏠</span>
+    <p id="nav_home">Ev</p>
+  </div>
+
+  <div class="nav-item" onclick="window.location.href='vip.html'">
+    <span>👑</span>
+    <p id="nav_vip">VIP</p>
+  </div>
+
+  <div class="nav-item" onclick="window.location.href='tasks.html'">
+    <span>📊</span>
+    <p id="nav_task">Görev</p>
+  </div>
+
+  <div class="nav-item" onclick="window.location.href='profile.html'">
+  <span>👤</span>
+  <p id="nav_profile">Ben</p>
+</div>
+
+</div>
+
+ 
+
+  
+
+<script>
+  let userId = localStorage.getItem("userId");
+
+if (!userId) {
+  alert("Oturum bulunamadı, tekrar giriş yapın!");
+  window.location.href = "login.html";
+}
+  const API = "https://swerrrrr.onrender.com";
+function goDeposit(){
+  window.location.href = "deposit.html";
+}
+
+const translations = {
+  tr: {
+    title: "Deneyim Projesi",
+    progress: "İlerleme (24 saat)",
+    vip: "VIP",
+    power: "Madencilik Gücü",
+    income: "Günlük Kazanç",
+    btn: "Gücü Artır",
+    claim: "Ödülü Al",
+
+    // 🔥 جديد
+    info: "Para yatırdıktan sonra zamanlayıcıyı başlatabilirsiniz",
+    rules: "Herhangi bir hile tespit edilirse bakiyeniz silinir ve hesabınız banlanır",
+
+    nav_home: "Ev",
+    nav_vip: "VIP",
+    nav_task: "Görev",
+    nav_team: "Takım",
+    nav_profile: "Ben"
+  },
+
+  ar: {
+    title: "مشروع الخبرة",
+    progress: "نسبة التقدم (24 ساعة)",
+    vip: "المستوى",
+    power: "قوة التعدين",
+    income: "الدخل اليومي",
+    btn: "تحسين قوة السحوبات",
+    claim: "استلم القيمة",
+
+    // 🔥 جديد
+    info: "بعد إيداع أموالكم يمكنكم تفعيل التايمر",
+    rules: "اذا تم اكتشاف اي وسيلة غش سيتم سحب رصيدكم وحظر حسابكم",
+
+    nav_home: "الرئيسية",
+    nav_vip: "VIP",
+    nav_task: "تجمع التعدين",
+    nav_team: "الفريق",
+    nav_profile: "أنا"
+  },
+
+  en: {
+    title: "Experience Project",
+    progress: "Progress (24h)",
+    vip: "VIP",
+    power: "Mining Power",
+    income: "Daily Income",
+    btn: "Upgrade Power",
+    claim: "Claim Reward",
+
+    // 🔥 جديد
+    info: "After depositing funds you can activate the timer",
+    rules: "If any cheating is detected your balance will be removed and account banned",
+
+    nav_home: "Home",
+    nav_vip: "VIP",
+    nav_task: "Tasks",
+    nav_team: "Team",
+    nav_profile: "Me"
+  },
+};
+
+function applyLang(lang){
+  let t = translations[lang];
+  if(!t) return;
+
+  let el;
+
+  el = document.getElementById("title");
+  if(el) el.innerText = t.title;
+
+  el = document.getElementById("progressText");
+  if(el) el.innerText = t.progress;
+
+  el = document.getElementById("vipText");
+  if(el) el.innerText = t.vip;
+
+  el = document.getElementById("powerText");
+  if(el) el.innerText = t.power;
+
+  el = document.getElementById("incomeText");
+  if(el) el.innerText = t.income;
+
+  el = document.getElementById("btnText");
+  if(el) el.innerText = t.btn;
+
+  // 🔥 زر الاستلام
+  el = document.getElementById("claimBtn");
+  if(el) el.innerText = t.claim;
+
+  // 🔥 الناف بار
+  el = document.getElementById("nav_home");
+  if(el) el.innerText = t.nav_home;
+
+  el = document.getElementById("nav_vip");
+  if(el) el.innerText = t.nav_vip;
+
+  el = document.getElementById("nav_task");
+  if(el) el.innerText = t.nav_task;
+
+  el = document.getElementById("nav_team");
+  if(el) el.innerText = t.nav_team;
+
+  el = document.getElementById("nav_profile");
+  if(el) el.innerText = t.nav_profile;
+  el = document.getElementById("infoText");
+if(el) el.innerText = t.info;
+
+el = document.getElementById("rulesText");
+if(el) el.innerText = t.rules;
+}
+
+
+ window.onload = function(){
+
+  const API = "https://swerrrrr.onrender.com";
+
+  let userId = localStorage.getItem("userId");
+
+  if(!userId){
+    alert("❌ giriş yapılmamış");
+    window.location.href = "login.html";
+    return;
+  }
+
+  // 👤 kullanıcıyı serverdan çek
+  fetch(API + "/user/" + userId)
+  .then(res => res.json())
+  .then(user => {
+
+    if(!user || user.error){
+      alert("❌ kullanıcı bulunamadı");
+      return;
+    }
+
+    // 💰 bakiye göster
+    document.getElementById("userBalanceText").innerText =
+      "رصيدك: $" + (user.balance || 0);
+
+    // ⏱ timer kontrol
+    if(!user.timerEnd || user.timerEnd === 0){
+  document.getElementById("timerTitle").innerText = "00:00:00";
+
+  let btn = document.getElementById("claimBtn");
+  btn.classList.remove("disabled-btn");
+  btn.classList.add("active-btn");
+
+} else {
+  startTimer(user.timerEnd);
+}
+
+  });
+
+  let lang = localStorage.getItem("lang") || "tr";
+  applyLang(lang);
+}
+
+
+
+
+
+
+ 
+
+
+function showMessage(text){
+
+  let msg = document.createElement("div");
+  msg.innerText = text;
+
+  msg.style.position = "fixed";
+  msg.style.bottom = "120px";
+  msg.style.left = "50%";
+  msg.style.transform = "translateX(-50%)";
+  msg.style.background = "linear-gradient(90deg, red, orange)";
+  msg.style.color = "white";
+  msg.style.padding = "12px 25px";
+  msg.style.borderRadius = "12px";
+  msg.style.boxShadow = "0 0 15px red";
+  msg.style.fontWeight = "bold";
+  msg.style.zIndex = "9999";
+
+  document.body.appendChild(msg);
+
+  setTimeout(()=>{
+    msg.remove();
+  },2000);
+}
+// 🔥 جلب بيانات المستخدم + التايمر
+function loadUser() {
+  let id = localStorage.getItem("userId");
+  if(!id) return;
+
+  fetch(API + "/user/" + id)
+    .then(res => res.json())
+    .then(user => {
+      // 💰 Bakiyeyi Güncelle
+      const balanceEl = document.getElementById("userBalanceText");
+      if(balanceEl) {
+        balanceEl.innerText = "رصيدك: $" + (user.balance || 0).toFixed(2);
+      }
+
+      // ⏱️ Sayaç Mantığı
+      updateTimer(user.timerEnd);
+    });
+}
+
+function updateTimer(timerEnd) {
+  const timerEl = document.getElementById("timerTitle");
+  const claimBtn = document.getElementById("claimBtn"); // Butona id verdiğini varsayalım
+
+  const interval = setInterval(() => {
+    let now = Date.now();
+    let diff = timerEnd - now;
+
+    if (diff <= 0) {
+      clearInterval(interval);
+      timerEl.innerText = "00:00:00";
+      if(claimBtn) claimBtn.disabled = false; // Süre bitti, butonu aktif et
+      return;
+    }
+
+    let h = Math.floor(diff / (1000 * 60 * 60));
+    let m = Math.floor((diff / (1000 * 60)) % 60);
+    let s = Math.floor((diff / 1000) % 60);
+
+    timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }, 1000);
+}
+
+// تشغيل أول مرة
+loadUser();
+
+// تحديث كل ثانية
+setInterval(loadUser, 1000);
+function claimReward(){
+
+  let userId = localStorage.getItem("userId");
+
+  fetch(API + "/claim", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ userId })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if(data.error){
+      alert("⏳ 24 saat bekle!");
+      return;
+    }
+
+    alert("✅ Gün alındı!");
+    location.reload();
+
+  });
+
+}
+let timerInterval;
+
+function startTimer(timerEnd){
+
+  clearInterval(timerInterval);
+
+  let btn = document.getElementById("claimBtn");
+
+  timerInterval = setInterval(() => {
+
+    let now = Date.now();
+    let diff = timerEnd - now;
+
+    if(diff <= 0){
+      clearInterval(timerInterval);
+
+      document.getElementById("timerTitle").innerText = "00:00:00";
+
+      btn.classList.remove("disabled-btn");
+      btn.classList.add("active-btn");
+
+      return;
+    }
+
+    let h = Math.floor(diff / (1000*60*60));
+    let m = Math.floor((diff % (1000*60*60)) / (1000*60));
+    let s = Math.floor((diff % (1000*60)) / 1000);
+
+    document.getElementById("timerTitle").innerText =
+      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+
+  },1000);
+}
+</script>
+<script src="common.js"></script>
+</body>
+</html>
