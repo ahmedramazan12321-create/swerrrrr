@@ -1,223 +1,193 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VIP</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at top, #0f172a, #020617);
-  color: white;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
-/* 🔥 زر رجوع احترافي */
-.back-btn {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #1e293b, #0f172a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  color: white;
-  cursor: pointer;
-  z-index: 9999;
+  body {
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    color: white;
+    padding-bottom: 90px;
+    transition: direction 0.3s ease;
+  }
 
-  box-shadow:
-    0 0 10px rgba(0,0,0,0.5),
-    0 0 20px rgba(0,255,200,0.3);
+  /* 🔥 Geri Butonu */
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fca5a5;
+    cursor: pointer;
+    z-index: 9999;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    transition: 0.3s;
+  }
 
-  transition: 0.3s;
-}
+  .back-btn:hover {
+    background: #fca5a5;
+    color: black;
+    transform: scale(1.1);
+  }
 
-.back-btn:hover {
-  background: linear-gradient(145deg, #00f5d4, #00bbf9);
-  color: black;
-  transform: scale(1.1);
-  box-shadow:
-    0 0 20px #00f5d4,
-    0 0 40px #00bbf9;
-}
+  /* 💎 LÜKS VIP KARTI (TEK KART) */
+  .premium-card {
+    margin: 100px 20px 20px 20px;
+    padding: 40px 25px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.95));
+    border: 1px solid rgba(212, 175, 55, 0.4); /* Altın rengi sınır */
+    box-shadow: 
+      0 15px 35px rgba(0,0,0,0.6), 
+      0 0 30px rgba(212, 175, 55, 0.15), /* Altın parlama */
+      inset 0 0 20px rgba(212, 175, 55, 0.05);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(15px);
+  }
 
-/* 💎 VIP CARD */
-.vip-card {
-  margin: 20px;
-  padding: 20px;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #1e293b, #334155);
-  position: relative;
-  overflow: hidden;
-  transition: 0.3s;
-}
+  /* ✨ Parlama Efekti Animasyonu */
+  .premium-card::before {
+    content: "";
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg);
+    animation: shine 4s infinite;
+  }
 
+  @keyframes shine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
 
-.vip-card {
-  margin: 20px;
-  padding: 20px;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #1e293b, #334155);
-  box-shadow:
-    0 0 10px rgba(0,255,200,0.2),
-    inset 0 0 10px rgba(0,255,200,0.1);
-  transition: 0.3s;
-}
+  /* 👑 VIP Başlığı */
+  .vip-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(252, 246, 186, 0.2);
+  }
 
-.vip-card:hover {
-  transform: translateY(-5px);
-  box-shadow:
-    0 0 20px rgba(0,255,200,0.4);
-}
+  /* 📊 Veri Satırları */
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    position: relative;
+    z-index: 2;
+  }
+  .data-row:last-child {
+    border-bottom: none;
+  }
 
-/* Hover */
-.vip-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow:
-    0 0 20px rgba(0,255,200,0.5),
-    0 0 40px rgba(0,187,249,0.4);
-}
+  .d-label {
+    color: #9ca3af;
+    font-size: 15px;
+    font-weight: 600;
+  }
 
-/* عنوان */
-.vip-card h3 {
-  margin-bottom: 10px;
-  font-size: 20px;
-  color: #00f5d4;
-}
+  .d-val {
+    font-weight: 800;
+    font-size: 18px;
+    color: #f3f4f6;
+    direction: ltr; /* Sayıların ters dönmesini engeller */
+  }
 
-/* المحتوى */
-.vip-box {
-  display: flex;
-  justify-content: space-between;
-}
+  .d-val.highlight {
+    color: #10B981; /* Neon Yeşil Kazanç */
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    font-size: 22px;
+  }
 
-/* اليسار */
-.left p {
-  margin: 6px 0;
-}
-
-/* اليمين */
-.right p {
-  margin: 6px 0;
-  color: #94a3b8;
-  text-align: right;
-}
-
-/* اللون الأخضر */
-.green {
-  color: #00ff88;
-  font-weight: bold;
-  text-shadow: 0 0 10px #00ff88;
-}
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 65px;
-  background: #020617;
-
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-
-  border-top: 1px solid rgba(255,255,255,0.1);
-  z-index: 999;
-}
-
-.nav-item {
-  flex: 1;
-  text-align: center;
-  color: #aaa;
-  font-size: 12px;
-}
-
-.nav-item span {
-  display: block;
-  font-size: 18px;
-}
-
-.nav-item.active {
-  color: #00f5d4;
-}
+  /* 📱 Alt Navigasyon Barı */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 10px 0 15px 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    direction: ltr; /* Navigasyon sırası bozulmasın */
+    z-index: 999;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    color: #6b7280;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .nav-item.active { color: #FBBF24; }
+  .nav-item span { display: block; font-size: 24px; margin-bottom: 4px; }
+  .nav-item p { margin: 0; font-size: 12px; font-weight: 600; }
 </style>
 </head>
 
 <body>
 
-<!-- 🔥 زر رجوع -->
-<div class="back-btn" onclick="goBack()">←</div>
+<div class="back-btn" onclick="goBack()">🔙</div>
 
-<!-- VIP1 -->
-<div class="vip-card">
-  <h3>VIP1</h3>
-  <div class="vip-box">
-    <div class="left">
-      <p>500.00 ~ 100.00</p>
-      <p class="green">20.00%</p>
-      <p class="green">180</p>
-    </div>
-    <div class="right">
-      <p class="t-recharge"></p>
-      <p class="t-profit"></p>
-      <p class="t-time"></p>
-    </div>
+<div class="premium-card">
+  <div class="vip-title">VIP</div>
+  
+  <div class="data-row">
+    <span class="d-label" id="lbl_recharge">Ana Yatırım</span>
+    <span class="d-val">100.00 ~ 1,000,000.00</span>
+  </div>
+  
+  <div class="data-row">
+    <span class="d-label" id="lbl_profit">Günlük Kazanç</span>
+    <span class="d-val highlight">20.00%</span>
+  </div>
+  
+  <div class="data-row">
+    <span class="d-label" id="lbl_time">Süre</span>
+    <span class="d-val">180</span>
   </div>
 </div>
 
-<!-- VIP2 -->
-<div class="vip-card">
-  <h3>VIP2</h3>
-  <div class="vip-box">
-    <div class="left">
-      <p>1,000.00 ~ 500.00</p>
-      <p class="green">25,00%</p>
-      <p class="green">180</p>
-    </div>
-    <div class="right">
-      <p class="t-recharge"></p>
-      <p class="t-profit"></p>
-      <p class="t-time"></p>
-    </div>
-  </div>
-</div>
 
-<!-- VIP3 -->
-<div class="vip-card">
-  <h3>VIP3</h3>
-  <div class="vip-box">
-    <div class="left">
-      <p>2,000.00 ~ 1,000.00</p>
-      <p class="green">30.00%</p>
-      <p class="green">180</p>
-    </div>
-    <div class="right">
-      <p class="t-recharge"></p>
-      <p class="t-profit"></p>
-      <p class="t-time"></p>
-    </div>
+<div class="bottom-nav">
+  <div class="nav-item" onclick="window.location.href='dashboard.html'">
+    <span>🏠</span><p id="nav_home">Ev</p>
   </div>
-</div>
-
-<!-- VIP4 -->
-<div class="vip-card">
-  <h3>VIP4</h3>
-  <div class="vip-box">
-    <div class="left">
-      <p>+6,000.00 ~ 2,000.00</p>
-      <p class="green">35.00%</p>
-      <p class="green">180</p>
-    </div>
-    <div class="right">
-      <p class="t-recharge"></p>
-      <p class="t-profit"></p>
-      <p class="t-time"></p>
-    </div>
+  <div class="nav-item active" onclick="window.location.href='vip.html'">
+    <span>👑</span><p id="nav_vip">VIP</p>
+  </div>
+  <div class="nav-item" onclick="window.location.href='tasks.html'">
+    <span>📊</span><p id="nav_task">Görev</p>
+  </div>
+  <div class="nav-item" onclick="window.location.href='profile.html'">
+    <span>👤</span><p id="nav_profile">Ben</p>
   </div>
 </div>
 
@@ -228,34 +198,16 @@ function goBack(){
 
 const translations = {
   tr: {
-    nav_home: "Ev",
-    nav_vip: "VIP",
-    nav_task: "Görev",
-    nav_team: "Takım",
-    nav_profile: "Ben",
-    recharge: "Yatırım",
-    profit: "Kazanç",
-    time: "Gün"
-  },
-  ar: {
-    nav_home: "الرئيسية",
-    nav_vip: "VIP",
-    nav_task: "تجمع التعدين",
-    nav_team: "الفريق",
-    nav_profile: "أنا",
-    recharge: "مبلغ إعادة الشحن",
-    profit: "دخل التعدين",
-    time: "يوم"
+    nav_home: "Ev", nav_vip: "VIP", nav_task: "Görev", nav_profile: "Ben",
+    recharge: "Yatırım Limiti", profit: "Günlük Kazanç", time: "Geçerlilik (Gün)"
   },
   en: {
-    nav_home: "Home",
-    nav_vip: "VIP",
-    nav_task: "Tasks",
-    nav_team: "Team",
-    nav_profile: "Me",
-    recharge: "Recharge",
-    profit: "Profit",
-    time: "Days"
+    nav_home: "Home", nav_vip: "VIP", nav_task: "Tasks", nav_profile: "Me",
+    recharge: "Investment Limit", profit: "Daily Profit", time: "Validity (Days)"
+  },
+  ar: {
+    nav_home: "الرئيسية", nav_vip: "VIP", nav_task: "تجمع التعدين", nav_profile: "أنا",
+    recharge: "حد الاستثمار", profit: "الربح اليومي", time: "الصلاحية (أيام)"
   }
 };
 
@@ -263,61 +215,26 @@ function applyLang(lang){
   const t = translations[lang];
   if(!t) return;
 
-  let el;
+  // Navigasyon
+  if(document.getElementById("nav_home")) document.getElementById("nav_home").innerText = t.nav_home;
+  if(document.getElementById("nav_vip")) document.getElementById("nav_vip").innerText = t.nav_vip;
+  if(document.getElementById("nav_task")) document.getElementById("nav_task").innerText = t.nav_task;
+  if(document.getElementById("nav_profile")) document.getElementById("nav_profile").innerText = t.nav_profile;
 
-  el = document.getElementById("nav_home");
-  if(el) el.innerText = t.nav_home;
+  // VIP Kart İçeriği
+  if(document.getElementById("lbl_recharge")) document.getElementById("lbl_recharge").innerText = t.recharge;
+  if(document.getElementById("lbl_profit")) document.getElementById("lbl_profit").innerText = t.profit;
+  if(document.getElementById("lbl_time")) document.getElementById("lbl_time").innerText = t.time;
 
-  el = document.getElementById("nav_vip");
-  if(el) el.innerText = t.nav_vip;
-
-  el = document.getElementById("nav_task");
-  if(el) el.innerText = t.nav_task;
-
-  el = document.getElementById("nav_team"); // 🔥 ما يكسر لو مش موجود
-  if(el) el.innerText = t.nav_team;
-
-  el = document.getElementById("nav_profile");
-  if(el) el.innerText = t.nav_profile;
-
-  // VIP TEXT
-  document.querySelectorAll(".t-recharge").forEach(e => e.innerText = t.recharge);
-  document.querySelectorAll(".t-profit").forEach(e => e.innerText = t.profit);
-  document.querySelectorAll(".t-time").forEach(e => e.innerText = t.time);
+  // Arapça için sağdan sola hizalama
+  document.body.style.direction = (lang === 'ar') ? "rtl" : "ltr";
 }
+
 window.onload = function(){
   let lang = localStorage.getItem("lang") || "tr";
   applyLang(lang);
 }
 </script>
-<div class="bottom-nav">
 
-  <div class="nav-item active" onclick="window.location.href='dashboard.html'">
-    <span>🏠</span>
-    <p id="nav_home">Ev</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='vip.html'">
-    <span>👑</span>
-    <p id="nav_vip">VIP</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='tasks.html'">
-    <span>📊</span>
-   <p id="nav_task">Görev</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='profile.html'">
-  <span>👤</span>
-  <p id="nav_profile">Ben</p>
-</div>
-
-</div>
-
-
-</div>
-
-</div>
-<script src="common.js"></script>
 </body>
 </html>
