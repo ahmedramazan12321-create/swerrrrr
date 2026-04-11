@@ -1,14 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const path = require("path"); // 🔥 EKLENDİ: Dosya yollarını yönetmek için
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-/* 🔥 ANA SAYFA (Cannot GET / fix) */
+// 🔥 EKLENDİ: Tüm statik dosyaları (HTML, CSS, JS, resimler) dışa açar
+app.use(express.static(__dirname));
+
+/* 🔥 ANA SAYFA (Artık siteye girildiğinde index.html açılacak) */
 app.get("/", (req, res) => {
-  res.send("✅ API çalışıyor");
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 /* 🔥 MONGODB */
