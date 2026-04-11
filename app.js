@@ -11,7 +11,7 @@ const texts = {
     password: "Şifre",
     switch: "Hesabın yok mu? Üye Ol",
     emailUsed: "Bu email zaten kullanılmış!",
-    success: "Kayıt başarılı!"
+    success: "İşlem başarılı!"
   },
   en: {
     login: "Login",
@@ -20,7 +20,7 @@ const texts = {
     password: "Password",
     switch: "Don't have account? Sign up",
     emailUsed: "This email is already used!",
-    success: "Registration successful!"
+    success: "Process successful!"
   },
   ar: {
     login: "تسجيل الدخول",
@@ -29,14 +29,14 @@ const texts = {
     password: "كلمة المرور",
     switch: "ليس لديك حساب؟ سجل",
     emailUsed: "هذا البريد مستخدم بالفعل!",
-    success: "تم التسجيل بنجاح!"
+    success: "العملية ناجحة!"
   }
 };
 
 /* 🌐 LANG FUNCTIONS */
 function toggleLang(){
   let m = document.getElementById("langMenu");
-  m.style.display = m.style.display === "block" ? "none" : "block";
+  if(m) m.style.display = m.style.display === "block" ? "none" : "block";
 }
 
 function setLang(lang){
@@ -71,22 +71,23 @@ window.onload = () => {
 
 /* REGISTER */
 function register(){
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
+  let email = document.getElementById("email")?.value;
+  let password = document.getElementById("password")?.value;
   let msg = document.getElementById("msg");
   let t = texts[getLang()];
+
+  if(!email || !password) return;
 
   fetch(API + "/register", {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email,password})
+    body:JSON.stringify({email, password})
   })
   .then(r => r.json())
   .then(data => {
-
     if(data.error){
       if(msg){
-        msg.innerText = t.emailUsed;
+        msg.innerText = data.error === "email_used" ? t.emailUsed : "Kayıt hatası!";
         msg.style.color = "red";
       }
       return;
@@ -97,12 +98,14 @@ function register(){
       msg.style.color = "lightgreen";
     }
 
-    document.getElementById("loader").style.display = "flex";
+    let loader = document.getElementById("loader");
+    if(loader) loader.style.display = "flex";
+    
     localStorage.setItem("userId", data.userId);
 
     setTimeout(()=>{
       window.location.href = "dashboard.html";
-    },2000);
+    }, 2000);
 
   })
   .catch(() => {
@@ -115,19 +118,20 @@ function register(){
 
 /* LOGIN */
 function login(){
-  let email = document.getElementById("loginEmail").value;
-  let password = document.getElementById("loginPassword").value;
+  let email = document.getElementById("loginEmail")?.value;
+  let password = document.getElementById("loginPassword")?.value;
   let msg = document.getElementById("msg");
   let t = texts[getLang()];
+
+  if(!email || !password) return;
 
   fetch(API + "/login", {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email,password})
+    body:JSON.stringify({email, password})
   })
   .then(r => r.json())
   .then(data => {
-
     if(data.error){
       if(msg){
         msg.innerText = "Hatalı giriş!";
@@ -135,13 +139,20 @@ function login(){
       }
       return;
     }
+    
+    if(msg){
+      msg.innerText = t.success;
+      msg.style.color = "lightgreen";
+    }
 
-    document.getElementById("loader").style.display = "flex";
+    let loader = document.getElementById("loader");
+    if(loader) loader.style.display = "flex";
+    
     localStorage.setItem("userId", data.userId);
 
     setTimeout(()=>{
       window.location.href = "dashboard.html";
-    },1500);
+    }, 1500);
 
   })
   .catch(() => {
