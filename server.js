@@ -1,217 +1,108 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const path = require("path");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// HTML/CSS/JS dosyalarını sunmak için
-app.use(express.static(path.join(__dirname)));
+// MongoDB Bağlantısı (Kendi URI'ni buraya yazmalısın)
+mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:12345678Aa323@cluster0.qtdzrfm.mongodb.net/myapp", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log("MongoDB Bağlantısı Başarılı"))
+  .catch(err => console.log("MongoDB Hatası:", err));
 
-// MongoDB Bağlantısı (Kendi adresini buraya yazabilirsin)
-mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:12345678Aa323@cluster0.qtdzrfm.mongodb.net/myapp?retryWrites=true&w=majority")
-.then(() => console.log("MongoDB Bağlantısı Başarılı ✅"))
-.catch(err => console.log("Mongo Hatası:", err));
-
-// --- KULLANICI MODELİ ---
+// Kullanıcı Şeması
 const UserSchema = new mongoose.Schema({
-  email: { type: String, unique: true },
+  email: String,
   password: String,
-  id: { type: Number, unique: true },
-  balance: { type: Number, default: 0 },
-
-  days: { type: Number, default: 0 },
-  invited: { type: Boolean, default: false },
-
-  // 🔥 هذا الجديد تضيفه هنا
-  lastClaim: { type: Number, default: 0 }
+  id: Number,
+  
+  balance: { type: Number, default: 0 },         // Çekilebilir toplam bakiye
+  depositAmount: { type: Number, default: 0 },   // Sadece %20 hesaplanacak ANA PARA
+  
+  depositTime: { type: Number, default: 0 },     // 24 Saatlik Geri Sayım Başlangıcı
+  lastDailyGiven: { type: Number, default: 0 }   // Son ödeme kontrolü
 });
 
 const User = mongoose.model("User", UserSchema);
 
-// --- YARDIMCI FONKSİYON: 6 Haneli ID ---
-async function generateId() {
-  let id;
-  let exists;
-  do {
-    id = Math.floor(100000 + Math.random() * 900000);
-    exists = await User.findOne({ id });
-  } while (exists);
-  return id;
-}
-
-// --- API ENDPOINTLERİ ---
-
-// 1. Kayıt Ol
-// --- API ENDPOINTLERİ ---
-
-// 1. Kayıt Ol
+// REGISTER (Kayıt)
 app.post("/register", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const id = await generateId();
-    const newUser = new User({ email, password, id });
-    await newUser.save();
-    res.json({ success: true, userId: id });
-  } catch (err) {
-    res.json({ error: "E-posta zaten kayıtlı! ❌" });
-  }
-});
-
-// 2. Giriş Yap
-app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email, password });
-  if (user) {
-    res.json({ success: true, userId: user.id });
-  } else {
-    res.json({ error: "E-posta veya şifre hatalı! ❌" });
-  }
+  const existingUser = await User.findOne({ email });
+  if (existingUser) return res.json({ error: "email_used" });
+
+  const id = Math.floor(100000 + Math.random() * 900000);
+  await User.create({ email, password, id });
+  res.json({ success: true, userId: id });
 });
 
-// 3. Kullanıcı Bilgilerini Çek
+
+// LOGIN (Giriş)
+app.post("/login", async (req, res) => {
+  const user = await User.findOne({ email: req.body.email, password: req.body.password });
+  if (!user) return res.json({ error: "wrong" });
+  res.json({ success: true, userId: user.id });
+});
+
+// USER (Kullanıcı Bilgilerini Çekme - Frontend için)
 app.get("/user/:id", async (req, res) => {
-  try {
-
-    const id = Number(req.params.id);
-
-    if(isNaN(id)){
-      return res.json({ error: "invalid id" });
-    }
-
-    let user = await User.findOne({ id });
-
-    if (!user) return res.json({ error: "not found" });
-
-    res.json(user);
-
-  } catch (err) {
-    console.log(err);
-    res.json({ error: "server error" });
-  }
+  const user = await User.findOne({ id: Number(req.params.id) });
+  res.json(user);
 });
 
-
-// 🔥🔥🔥 هذا الجديد (حطه تحتهم مباشرة)
-app.post("/claim", async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    if(!userId){
-      return res.json({ error: "no id" });
-    }
-
-    const user = await User.findOne({ id: Number(userId) });
-
-    if (!user) {
-      return res.json({ error: "user not found" });
-    }
-
-    const now = Date.now();
-    const DAY = 24 * 60 * 60 * 1000;
-
-    // 🔥 حماية من الغش
-    if (now - (user.lastClaim || 0) < DAY) {
-      return res.json({ error: "wait" });
-    }
-
-    // ✅ زيادة اليوم
-    user.days = (user.days || 0) + 1;
-
-    // 💰 زيادة الرصيد
-    user.balance = (user.balance || 0) + 10;
-
-    // 🕒 حفظ الوقت
-    user.lastClaim = now;
-
-    await user.save();
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.log(err);
-    res.json({ error: "server error" });
-  }
-});
-
-
-// 4. ADMIN: Bakiyeyi Ekle ve Sayacı Başlat
-// Admin panelinden birine para gönderdiğinde bu çalışır.
+// 💰 ADMIN PARA EKLEME ENDPOINTİ
 app.post("/add-balance", async (req, res) => {
+  if(req.body.adminKey !== "1234") {
+    return res.json({ error: "no_auth" });
+  }
+
+  const { id, amount } = req.body;
+  const amt = Number(amount);
+
+  let user = await User.findOne({ id: Number(id) });
+  if (!user) return res.json({ error: "user_not_found" });
+
+  // 1. Ana Parayı (Deposit) Güncelle
+  user.depositAmount = amt;   // 🔥 ANA PARA
+user.balance += amt;        // 🔥 BAKİYE
+user.depositTime = Date.now(); // 🔥 TIMER BAŞLAT
+
+  await user.save();
+
+  res.json({ success: true, newBalance: user.balance, depositAmount: user.depositAmount });
+});
+
+// ⚙️ OTOMATİK 24 SAAT KAZANÇ DÖNGÜSÜ (Her 1 dakikada kontrol eder)
+setInterval(async () => {
   try {
-    const { id, amount } = req.body;
-    let user = await User.findOne({ id: Number(id) });
+    const now = Date.now();
+    const ONE_DAY_MS = 86400000; // 24 Saat = 86.400.000 milisaniye
 
-    if (!user) return res.json({ error: "Kullanıcı bulunamadı" });
+    // Sadece yatırımı olan ve timer'ı başlamış (depositTime > 0) kullanıcıları bul
+    const users = await User.find({ depositAmount: { $gt: 0 }, depositTime: { $gt: 0 } });
 
-    // Eğer bu İLK para yatırma ise, bunu ana para (initialDeposit) olarak kaydet
-    if (user.initialDeposit === 0 && amount > 0) {
-      user.initialDeposit = Number(amount);
+    for (let user of users) {
+      const timePassed = now - user.depositTime;
+
+      // Eğer yatırımın üzerinden tam 24 saat (veya daha fazla) geçmişse
+      if (timePassed >= ONE_DAY_MS) {
+        // Sadece ana paranın (depositAmount) %20'sini hesapla
+        const reward = user.depositAmount * 0.20; 
+        
+        user.balance += reward; // Bakiyeye ekle
+        user.depositTime = now; // Timer'ı ŞU AN itibarıyla sıfırla (SONSUZ DÖNGÜ BAŞLAR)
+        user.lastDailyGiven = now;
+        
+        await user.save();
+        console.log(`[BAŞARILI] User ${user.id} hesabına $${reward} eklendi. Timer sıfırlandı.`);
+      }
     }
-
-    user.balance += Number(amount);
-
-    // 🔥 SAYACI BAŞLAT: Şu anki zaman + 24 Saat (milisaniye cinsinden)
-    user.timerEnd = Date.now() + (24 * 60 * 60 * 1000);
-
-    await user.save();
-    res.json({ success: true, balance: user.balance, timerEnd: user.timerEnd });
   } catch (err) {
-    res.json({ error: "İşlem başarısız" });
+    console.error("Otomatik ödeme sistemi hatası:", err);
   }
-});
+}, 60 * 1000); // 1 Dakikada bir kontrol
 
-// 5. CLAIM: Ödül Al Butonu
-app.post("/claim", async (req, res) => {
-  try {
-    const { id } = req.body;
-    let user = await User.findOne({ id: Number(id) });
-
-    if (!user) return res.json({ error: "Kullanıcı yok" });
-
-    // Süre dolmuş mu kontrolü
-    if (Date.now() < user.timerEnd) {
-      return res.json({ error: "Henüz 24 saat dolmadı!" });
-    }
-
-    // 🔥 ANA PARA ÜZERİNDEN %20 KAR (Senin istediğin 120 -> 140 mantığı)
-    let profit = user.initialDeposit * 0.20;
-    user.balance += profit;
-
-    // Ödül alındıktan sonra sayacı bir 24 saat daha ileriye kur
-    user.timerEnd = Date.now() + (24 * 60 * 60 * 1000);
-
-    await user.save();
-    res.json({ success: true, newBalance: user.balance, timerEnd: user.timerEnd });
-  } catch (err) {
-    res.json({ error: "Hata oluştu" });
-  }
-});
-app.get("/ping", (req, res) => {
-  res.send("OK");
-});
-// 🔥 RESET TIMER
-app.post("/reset-timer", async (req, res) => {
-  try {
-    const { id } = req.body;
-
-    let user = await User.findOne({ id: Number(id) });
-
-    if (!user) return res.json({ error: "Kullanıcı yok" });
-
-    user.timerEnd = 0;
-
-    await user.save();
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.log(err);
-    res.json({ error: "server error" });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Sunucu ${PORT} portunda aktif.`));
+app.listen(3000, () => console.log("Server 3000 portunda aktif ve Otomatik Ödeme Sistemi çalışıyor."));
