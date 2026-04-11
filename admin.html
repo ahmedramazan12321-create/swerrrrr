@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <title>Admin Panel</title>
@@ -29,6 +29,7 @@ button{
   border-radius:10px;
   cursor:pointer;
   font-weight:bold;
+  margin:5px;
 }
 </style>
 </head>
@@ -37,148 +38,111 @@ button{
 
 <h2>🔧 Admin Panel</h2>
 
-<input id="password" placeholder="Password">
-<input id="uid" placeholder="User ID">
-<input id="amount" placeholder="Amount">
+<input id="password" placeholder="Admin Key">
+<input id="uid" placeholder="Kullanıcı ID">
+<input id="amount" placeholder="Miktar">
 
-<button onclick="addBalance()">Add Balance</button>
-<button onclick="removeBalance()">Remove Balance</button>
-<button onclick="resetTimer()">Reset Timer</button>
+<button onclick="addBalance()">➕ Para Ekle</button>
+<button onclick="removeBalance()">➖ Para Sil</button>
+<button onclick="resetTimer()">⏱️ Timer Reset</button>
 
 <script>
 const API = "https://swerrrrr.onrender.com";
 
-// ➕ إضافة رصيد
+// 🔐 Admin key al
+function getKey(){
+  return document.getElementById("password").value;
+}
+
+// ➕ PARA EKLE
 function addBalance(){
-
-  let pass = document.getElementById("password").value;
   let id = document.getElementById("uid").value;
   let amount = document.getElementById("amount").value;
+  let key = getKey();
 
-  if(pass !== "kbs"){
-    alert("❌ Şifre yanlış!");
-    return;
-  }
-
-  if(!id || !amount){
-    alert("❌ boş bırakma!");
+  if(!id || !amount || !key){
+    alert("❌ Eksik veri!");
     return;
   }
 
   fetch(API + "/add-balance", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
       id: Number(id),
-      amount: Number(amount)
+      amount: Number(amount),
+      adminKey: key
     })
   })
-  .then(res => res.json())
-  .then(data => {
-
-    console.log("SERVER RESPONSE:", data); // 🔥 مهم
-
+  .then(res=>res.json())
+  .then(data=>{
     if(data.error){
       alert("❌ Hata: " + data.error);
-    } else {
-      alert("✅ Bakiye eklendi! Yeni bakiye: " + data.balance);
+    }else{
+      alert("✅ Para eklendi!");
     }
-
   })
-  .catch(err => {
-    console.error(err);
-    alert("❌ Server hatası!");
-  });
+  .catch(()=> alert("❌ Server hatası!"));
 }
 
-// ➖ حذف رصيد
+// ➖ PARA SİL
 function removeBalance(){
-
-  let pass = document.getElementById("password").value;
   let id = document.getElementById("uid").value;
   let amount = document.getElementById("amount").value;
+  let key = getKey();
 
-  if(pass !== "kbs"){
-    alert("❌ Şifre yanlış!");
-    return;
-  }
-
-  if(!id || !amount){
-    alert("❌ boş bırakma!");
+  if(!id || !amount || !key){
+    alert("❌ Eksik veri!");
     return;
   }
 
   fetch(API + "/add-balance", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
       id: Number(id),
-      amount: -Number(amount)
+      amount: -Number(amount),
+      adminKey: key
     })
   })
-  .then(res => res.json())
-  .then(data => {
-
-    console.log("SERVER RESPONSE:", data); // 🔥 مهم
-
+  .then(res=>res.json())
+  .then(data=>{
     if(data.error){
       alert("❌ Hata: " + data.error);
-    } else {
-      alert("✅ Bakiye silindi! Yeni bakiye: " + data.balance);
+    }else{
+      alert("✅ Para silindi!");
     }
-
   })
-  .catch(err => {
-    console.error(err);
-    alert("❌ Server hatası!");
-  });
+  .catch(()=> alert("❌ Server hatası!"));
 }
+
+// ⏱️ TIMER RESET
 function resetTimer(){
-
-  console.log("RESET CLICKED"); // 🔥 اختبار
-
-  let pass = document.getElementById("password").value;
   let id = document.getElementById("uid").value;
+  let key = getKey();
 
-  if(pass !== "kbs"){
-    alert("❌ Şifre yanlış!");
-    return;
-  }
-
-  if(!id){
-    alert("❌ ID boş!");
+  if(!id || !key){
+    alert("❌ Eksik veri!");
     return;
   }
 
   fetch(API + "/reset-timer", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
-      id: Number(id)
+      id: Number(id),
+      adminKey: key
     })
   })
-  .then(res => res.json())
-  .then(data => {
-
-    console.log("SERVER:", data); // 🔥 مهم
-
+  .then(res=>res.json())
+  .then(data=>{
     if(data.error){
-      alert("❌ " + data.error);
-    } else {
-      alert("✅ Timer sıfırlandı");
+      alert("❌ Hata: " + data.error);
+    }else{
+      alert("✅ Timer sıfırlandı!");
     }
-
   })
-  .catch(err => {
-    console.log(err);
-    alert("❌ Server hatası!");
-  });
+  .catch(()=> alert("❌ Server hatası!"));
 }
 </script>
 
