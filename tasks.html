@@ -1,469 +1,305 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="tr">
 <head>
-  <link rel="stylesheet" href="style.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tasks</title>
-
+<title id="title">Görevler</title>
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at top, #0f172a, #020617);
-  color: white;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
-/* CARD */
-.card {
-  margin: 15px;
-  padding: 20px;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #1e293b, #334155);
-  box-shadow: 0 0 20px rgba(0,255,200,0.2);
-}
+  body {
+    margin: 0;
+    font-family: 'Inter', Tahoma, sans-serif;
+    background: radial-gradient(circle at top, #111827, #030712);
+    color: #f3f4f6;
+    padding-bottom: 90px;
+    transition: direction 0.3s ease;
+  }
 
-/* BALANCE BOX */
-.balance-box {
-  text-align: center;
-  padding: 15px;
-  border-radius: 15px;
-  background: rgba(255,255,255,0.05);
-  margin: 15px 0;
-}
+  /* Kurumsal Cam Efektli (Glassmorphism) Kart */
+  .card {
+    margin: 25px 20px;
+    padding: 40px 25px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.9));
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
 
-.balance-box h1 {
-  margin: 0;
-}
+  .balance-title {
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
 
-/* PROGRESS */
-.progress {
-  height: 6px;
-  background: #1e293b;
-  border-radius: 10px;
-  margin: 10px 0;
-}
+  .balance-large {
+    font-size: 48px;
+    font-weight: 800;
+    color: #FBBF24; 
+    margin: 10px 0 25px 0;
+    text-shadow: 0 0 30px rgba(251, 191, 36, 0.25);
+    letter-spacing: -1px;
+    direction: ltr; /* Sayılar bozulmasın */
+    display: inline-block;
+  }
 
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #00ff88;
-  border-radius: 10px;
-}
+  .stats-box {
+    background: rgba(0,0,0,0.25);
+    border-radius: 16px;
+    padding: 15px 20px;
+    margin-top: 10px;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
 
-/* INFO */
-.info {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-}
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-row:last-child {
+    border-bottom: none;
+  }
 
-/* BUTTON */
-.btn {
-  width: 100%;
-  padding: 15px;
-  border: none;
-  border-radius: 15px;
-  background: #ff5a1f;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
+  .stat-label { font-size: 15px; color: #9ca3af; }
+  
+  .stat-value { 
+    font-size: 16px; 
+    font-weight: 600; 
+    color: #f3f4f6; 
+    direction: ltr; /* Fiyatların ters dönmesini engeller */
+  }
+  .stat-value.highlight { color: #10B981; }
+  .stat-value.timer { 
+    color: #FBBF24; 
+    letter-spacing: 2px; 
+    font-family: monospace; 
+    font-size: 18px;
+    background: rgba(251, 191, 36, 0.1);
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
 
-/* NAV */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  background: #020617;
-}
+  .auto-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 30px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+  }
+  .auto-badge i { font-style: normal; font-size: 16px; }
+  
+  .dots { text-align: center; color: #FBBF24; font-size: 24px; margin: 10px 0; opacity: 0.5; }
+  
+  .info-text { text-align: center; margin-top: 10px; padding: 0 30px; color: #6b7280; font-size: 14px; line-height: 1.7; }
+  .info-text strong { color: #9ca3af; }
 
-.nav-item {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  color: #aaa;
-}
-
-.nav-item.active {
-  color: orange;
-}
+  /* Navbar LTR Koruması */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; width: 100%; display: flex; 
+    background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(15px); 
+    border-top: 1px solid rgba(255,255,255,0.05); padding: 10px 0 15px 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5); direction: ltr; 
+  }
+  .nav-item { flex: 1; text-align: center; color: #6b7280; cursor: pointer; transition: 0.3s; }
+  .nav-item.active { color: #FBBF24; }
+  .nav-item span { display: block; font-size: 24px; margin-bottom: 4px; transition: transform 0.2s;}
+  .nav-item.active span { transform: translateY(-3px); }
+  .nav-item p { margin: 0; font-size: 12px; font-weight: 600; }
 </style>
 </head>
-
 <body>
 
-<div class="card" style="text-align:center">
-
-  <h1 id="timerTitle" class="timer">
-    ⏱️ 24:00:00
-  </h1>
-  <p id="userBalanceText" class="balance-small">
-  رصيدك: $0
-</p>
-
-</div>
-
-<!-- 👇 زر منفصل -->
-<button id="claimBtn" onclick="claimReward()" class="claim-btn big-btn disabled-btn">
-  استلم القيمة
-</button>
-
-<!-- 🔥 نقاط -->
-<div class="dots-box">
-  • • •
-</div>
-
-<!-- 📝 نص -->
-<p id="infoText" class="info-text">
-  بعد إيداع أموالكم يمكنكم تفعيل التايمر
-</p>
-
-<!-- ⚠️ قوانين -->
-<p id="rulesText" class="rules-text">
-  اذا تم اكتشاف اي وسيلة غش سيتم سحب رصيدكم وحظر حسابكم
-</p>
-
-</div>
-
-<!-- NAV -->
-
-
-  <div class="bottom-nav">
-
-  <div class="nav-item active" onclick="window.location.href='dashboard.html'">
-    <span>🏠</span>
-    <p id="nav_home">Ev</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='vip.html'">
-    <span>👑</span>
-    <p id="nav_vip">VIP</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='tasks.html'">
-    <span>📊</span>
-    <p id="nav_task">Görev</p>
-  </div>
-
-  <div class="nav-item" onclick="window.location.href='profile.html'">
-  <span>👤</span>
-  <p id="nav_profile">Ben</p>
-</div>
-
-</div>
-
- 
-
+<div class="card">
+  <div class="balance-title" id="progressText">Güncel Bakiyeniz</div>
+  <div id="userBalanceText" class="balance-large">$0.00</div>
   
+  <div class="stats-box">
+    <div class="stat-row">
+      <span class="stat-label" id="depositLabel">Ana Yatırım</span>
+      <span class="stat-value" id="depositAmount">$0.00</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label" id="dailyLabel">Günlük Kazanç (20%)</span>
+      <span class="stat-value highlight" id="dailyAmount">$0.00</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label" id="nextLabel">Sonraki Kazanç</span>
+      <span class="stat-value timer" id="nextTime">--:--:--</span>
+    </div>
+  </div>
+  
+  <div class="auto-badge">
+    <i>⚡</i> <span id="autoSystemText">Otomatik Kazanç Sistemi Aktif</span>
+  </div>
+</div>
+
+<div class="dots">• • •</div>
+
+<p id="infoText" class="info-text">
+  Kazançlarınız, yatırım yaptığınız saat baz alınarak her 24 saatte bir <strong>otomatik olarak</strong> bakiyenize eklenir. Herhangi bir işlem yapmanıza gerek yoktur.
+</p>
+
+<div class="bottom-nav">
+  <div class="nav-item" onclick="window.location.href='dashboard.html'">
+    <span>🏠</span><p id="nav_home">Ev</p>
+  </div>
+  <div class="nav-item" onclick="window.location.href='vip.html'">
+    <span>👑</span><p id="nav_vip">VIP</p>
+  </div>
+  <div class="nav-item active" onclick="window.location.href='tasks.html'">
+    <span>📊</span><p id="nav_task">Görev</p>
+  </div>
+  <div class="nav-item" onclick="window.location.href='profile.html'">
+    <span>👤</span><p id="nav_profile">Ben</p>
+  </div>
+</div>
 
 <script>
-  let userId = localStorage.getItem("userId");
-
+const userId = localStorage.getItem("userId");
 if (!userId) {
   alert("Oturum bulunamadı, tekrar giriş yapın!");
   window.location.href = "login.html";
 }
-  const API = "https://swerrrrr.onrender.com";
-function goDeposit(){
-  window.location.href = "deposit.html";
-}
+
+const API = window.location.hostname === "localhost" 
+  ? "http://localhost:3000" 
+  : "https://swerrrrr.onrender.com";
+
+let countdownInterval;
 
 const translations = {
   tr: {
-    title: "Deneyim Projesi",
-    progress: "İlerleme (24 saat)",
-    vip: "VIP",
-    power: "Madencilik Gücü",
-    income: "Günlük Kazanç",
-    btn: "Gücü Artır",
-    claim: "Ödülü Al",
-
-    // 🔥 جديد
-    info: "Para yatırdıktan sonra zamanlayıcıyı başlatabilirsiniz",
-    rules: "Herhangi bir hile tespit edilirse bakiyeniz silinir ve hesabınız banlanır",
-
-    nav_home: "Ev",
-    nav_vip: "VIP",
-    nav_task: "Görev",
-    nav_team: "Takım",
-    nav_profile: "Ben"
+    title: "Görev", progress: "GÜNCEL BAKİYENİZ", deposit: "Ana Yatırım",
+    daily: "Günlük Kazanç (20%)", next: "Sonraki Kazanç", ready: "✔ Hazır",
+    autoSystem: "Otomatik Kazanç Sistemi Aktif",
+    info: "Kazançlarınız, yatırım yaptığınız saat baz alınarak her 24 saatte bir <strong>otomatik olarak</strong> bakiyenize eklenir. Herhangi bir işlem yapmanıza gerek yoktur.",
+    nav_home: "Ev", nav_vip: "VIP", nav_task: "Görev", nav_profile: "Ben"
   },
-
-  ar: {
-    title: "مشروع الخبرة",
-    progress: "نسبة التقدم (24 ساعة)",
-    vip: "المستوى",
-    power: "قوة التعدين",
-    income: "الدخل اليومي",
-    btn: "تحسين قوة السحوبات",
-    claim: "استلم القيمة",
-
-    // 🔥 جديد
-    info: "بعد إيداع أموالكم يمكنكم تفعيل التايمر",
-    rules: "اذا تم اكتشاف اي وسيلة غش سيتم سحب رصيدكم وحظر حسابكم",
-
-    nav_home: "الرئيسية",
-    nav_vip: "VIP",
-    nav_task: "تجمع التعدين",
-    nav_team: "الفريق",
-    nav_profile: "أنا"
-  },
-
   en: {
-    title: "Experience Project",
-    progress: "Progress (24h)",
-    vip: "VIP",
-    power: "Mining Power",
-    income: "Daily Income",
-    btn: "Upgrade Power",
-    claim: "Claim Reward",
-
-    // 🔥 جديد
-    info: "After depositing funds you can activate the timer",
-    rules: "If any cheating is detected your balance will be removed and account banned",
-
-    nav_home: "Home",
-    nav_vip: "VIP",
-    nav_task: "Tasks",
-    nav_team: "Team",
-    nav_profile: "Me"
+    title: "Tasks", progress: "CURRENT BALANCE", deposit: "Initial Deposit",
+    daily: "Daily Income (20%)", next: "Next Reward", ready: "Processing...",
+    autoSystem: "Auto Earning System Active",
+    info: "Your earnings are <strong>automatically</strong> added to your balance every 24 hours based on your investment time. No action is required.",
+    nav_home: "Home", nav_vip: "VIP", nav_task: "Tasks", nav_profile: "Me"
   },
+  ar: {
+    title: "تجمع التعدين", progress: "الرصيد الحالي", deposit: "الإيداع الأساسي",
+    daily: "الدخل اليومي (20%)", next: "المكافأة القادمة", ready: "جاري المعالجة...",
+    autoSystem: "نظام الكسب التلقائي نشط",
+    info: "تتم إضافة أرباحك <strong>تلقائيًا</strong> إلى رصيدك كل 24 ساعة بناءً على وقت إيداعك. لا يتطلب أي إجراء.",
+    nav_home: "الرئيسية", nav_vip: "VIP", nav_task: "تجمع التعدين", nav_profile: "أنا"
+  }
 };
 
-function applyLang(lang){
+function getLang() { return localStorage.getItem("lang") || "tr"; }
+
+function applyLang(lang) {
   let t = translations[lang];
-  if(!t) return;
-
-  let el;
-
-  el = document.getElementById("title");
-  if(el) el.innerText = t.title;
-
-  el = document.getElementById("progressText");
-  if(el) el.innerText = t.progress;
-
-  el = document.getElementById("vipText");
-  if(el) el.innerText = t.vip;
-
-  el = document.getElementById("powerText");
-  if(el) el.innerText = t.power;
-
-  el = document.getElementById("incomeText");
-  if(el) el.innerText = t.income;
-
-  el = document.getElementById("btnText");
-  if(el) el.innerText = t.btn;
-
-  // 🔥 زر الاستلام
-  el = document.getElementById("claimBtn");
-  if(el) el.innerText = t.claim;
-
-  // 🔥 الناف بار
-  el = document.getElementById("nav_home");
-  if(el) el.innerText = t.nav_home;
-
-  el = document.getElementById("nav_vip");
-  if(el) el.innerText = t.nav_vip;
-
-  el = document.getElementById("nav_task");
-  if(el) el.innerText = t.nav_task;
-
-  el = document.getElementById("nav_team");
-  if(el) el.innerText = t.nav_team;
-
-  el = document.getElementById("nav_profile");
-  if(el) el.innerText = t.nav_profile;
-  el = document.getElementById("infoText");
-if(el) el.innerText = t.info;
-
-el = document.getElementById("rulesText");
-if(el) el.innerText = t.rules;
+  if (!t) return;
+  
+  if (document.getElementById("title")) document.getElementById("title").innerText = t.title;
+  if (document.getElementById("progressText")) document.getElementById("progressText").innerText = t.progress;
+  if (document.getElementById("depositLabel")) document.getElementById("depositLabel").innerText = t.deposit;
+  if (document.getElementById("dailyLabel")) document.getElementById("dailyLabel").innerText = t.daily;
+  if (document.getElementById("nextLabel")) document.getElementById("nextLabel").innerText = t.next;
+  if (document.getElementById("autoSystemText")) document.getElementById("autoSystemText").innerText = t.autoSystem;
+  if (document.getElementById("infoText")) document.getElementById("infoText").innerHTML = t.info;
+  
+  if (document.getElementById("nav_home")) document.getElementById("nav_home").innerText = t.nav_home;
+  if (document.getElementById("nav_vip")) document.getElementById("nav_vip").innerText = t.nav_vip;
+  if (document.getElementById("nav_task")) document.getElementById("nav_task").innerText = t.nav_task;
+  if (document.getElementById("nav_profile")) document.getElementById("nav_profile").innerText = t.nav_profile;
+  
+  document.body.style.direction = (lang === 'ar') ? "rtl" : "ltr";
 }
 
-
- window.onload = function(){
-
-  const API = "https://swerrrrr.onrender.com";
-
-  let userId = localStorage.getItem("userId");
-
-  if(!userId){
-    alert("❌ giriş yapılmamış");
-    window.location.href = "login.html";
+function startCountdown(depositTime) {
+  clearInterval(countdownInterval);
+  let nextEl = document.getElementById("nextTime");
+  
+  if (!depositTime || depositTime === 0) {
+    nextEl.innerText = "--:--:--";
     return;
   }
 
-  // 👤 kullanıcıyı serverdan çek
-  fetch(API + "/user/" + userId)
-  .then(res => res.json())
-  .then(user => {
+  // Hedef zaman = Yatırım Zamanı + 24 Saat (86400000 ms)
+  const targetTime = depositTime + 86400000;
 
-    if(!user || user.error){
-      alert("❌ kullanıcı bulunamadı");
-      return;
-    }
-
-    // 💰 bakiye göster
-    document.getElementById("userBalanceText").innerText =
-      "رصيدك: $" + (user.balance || 0);
-
-    // ⏱ timer kontrol
-    if(!user.timerEnd || user.timerEnd === 0){
-  document.getElementById("timerTitle").innerText = "00:00:00";
-
-  let btn = document.getElementById("claimBtn");
-  btn.classList.remove("disabled-btn");
-  btn.classList.add("active-btn");
-
-} else {
-  startTimer(user.timerEnd);
-}
-
-  });
-
-  let lang = localStorage.getItem("lang") || "tr";
-  applyLang(lang);
-}
-
-
-
-
-
-
- 
-
-
-function showMessage(text){
-
-  let msg = document.createElement("div");
-  msg.innerText = text;
-
-  msg.style.position = "fixed";
-  msg.style.bottom = "120px";
-  msg.style.left = "50%";
-  msg.style.transform = "translateX(-50%)";
-  msg.style.background = "linear-gradient(90deg, red, orange)";
-  msg.style.color = "white";
-  msg.style.padding = "12px 25px";
-  msg.style.borderRadius = "12px";
-  msg.style.boxShadow = "0 0 15px red";
-  msg.style.fontWeight = "bold";
-  msg.style.zIndex = "9999";
-
-  document.body.appendChild(msg);
-
-  setTimeout(()=>{
-    msg.remove();
-  },2000);
-}
-// 🔥 جلب بيانات المستخدم + التايمر
-function loadUser() {
-  let id = localStorage.getItem("userId");
-  if(!id) return;
-
-  fetch(API + "/user/" + id)
-    .then(res => res.json())
-    .then(user => {
-      // 💰 Bakiyeyi Güncelle
-      const balanceEl = document.getElementById("userBalanceText");
-      if(balanceEl) {
-        balanceEl.innerText = "رصيدك: $" + (user.balance || 0).toFixed(2);
-      }
-
-      // ⏱️ Sayaç Mantığı
-      updateTimer(user.timerEnd);
-    });
-}
-
-function updateTimer(timerEnd) {
-  const timerEl = document.getElementById("timerTitle");
-  const claimBtn = document.getElementById("claimBtn"); // Butona id verdiğini varsayalım
-
-  const interval = setInterval(() => {
+  countdownInterval = setInterval(() => {
     let now = Date.now();
-    let diff = timerEnd - now;
+    let diff = targetTime - now;
 
     if (diff <= 0) {
-      clearInterval(interval);
-      timerEl.innerText = "00:00:00";
-      if(claimBtn) claimBtn.disabled = false; // Süre bitti, butonu aktif et
+      clearInterval(countdownInterval);
+      nextEl.innerText = translations[getLang()].ready;
+      
+      // Timer sıfırlandığında ve para eklendiğinde arayüzü güncellemek için kullanıcıyı tekrar çek
+      setTimeout(loadUser, 3000); 
       return;
     }
 
-    let h = Math.floor(diff / (1000 * 60 * 60));
-    let m = Math.floor((diff / (1000 * 60)) % 60);
+    let h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    let m = Math.floor((diff / 1000 / 60) % 60);
     let s = Math.floor((diff / 1000) % 60);
 
-    timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    nextEl.innerText = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
   }, 1000);
 }
 
-// تشغيل أول مرة
-loadUser();
+function loadUser() {
+  fetch(`${API}/user/${userId}`)
+    .then(res => res.json())
+    .then(user => {
+      if (!user || user.error) {
+        alert("❌ Kullanıcı bulunamadı");
+        window.location.href = "login.html";
+        return;
+      }
+      
+      // 🔴 HATA AYIKLAMA İÇİN KONSOLA YAZDIRIYORUZ
+      console.log("📥 Sunucudan Gelen Veri:", user);
 
-// تحديث كل ثانية
-setInterval(loadUser, 1000);
-function claimReward(){
+      const balance = parseFloat(user.balance) || 0;
+      const depositAmount = parseFloat(user.depositAmount) || 0;
+      const dailyIncome = depositAmount * 0.20;
 
-  let userId = localStorage.getItem("userId");
-
-  fetch(API + "/claim", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ userId })
-  })
-  .then(res => res.json())
-  .then(data => {
-
-    if(data.error){
-      alert("⏳ 24 saat bekle!");
-      return;
-    }
-
-    alert("✅ Gün alındı!");
-    location.reload();
-
-  });
-
+      // Verileri Arayüze Yazdır
+      document.getElementById("userBalanceText").innerText = "$" + balance.toFixed(2);
+      document.getElementById("depositAmount").innerText = "$" + depositAmount.toFixed(2);
+      document.getElementById("dailyAmount").innerText = "$" + dailyIncome.toFixed(2);
+      
+      // Ana Para 0'dan büyükse ve depositTime varsa 24 saatlik sayacı başlat
+      if(depositAmount > 0 && user.depositTime > 0) {
+        console.log("✅ Timer Başlatılıyor...");
+        startCountdown(user.depositTime);
+      } else {
+        console.log("⚠️ Timer Başlamadı. Sebep: Ana Para veya depositTime 0.");
+        document.getElementById("nextTime").innerText = "--:--:--";
+      }
+    })
+    .catch(err => console.log("Hata:", err));
 }
-let timerInterval;
 
-function startTimer(timerEnd){
+window.onload = function() {
+  let lang = getLang();
+  applyLang(lang);
+  loadUser(); 
+};
 
-  clearInterval(timerInterval);
-
-  let btn = document.getElementById("claimBtn");
-
-  timerInterval = setInterval(() => {
-
-    let now = Date.now();
-    let diff = timerEnd - now;
-
-    if(diff <= 0){
-      clearInterval(timerInterval);
-
-      document.getElementById("timerTitle").innerText = "00:00:00";
-
-      btn.classList.remove("disabled-btn");
-      btn.classList.add("active-btn");
-
-      return;
-    }
-
-    let h = Math.floor(diff / (1000*60*60));
-    let m = Math.floor((diff % (1000*60*60)) / (1000*60));
-    let s = Math.floor((diff % (1000*60)) / 1000);
-
-    document.getElementById("timerTitle").innerText =
-      `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
-
-  },1000);
-}
 </script>
-<script src="common.js"></script>
 </body>
 </html>
