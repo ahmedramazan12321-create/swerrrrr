@@ -1,26 +1,26 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const path = require("path"); // 🔥 EKLENDİ: Dosya yollarını yönetmek için
+const path = require("path");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 🔥 EKLENDİ: Tüm statik dosyaları (HTML, CSS, JS, resimler) dışa açar
+/* 🔥 TÜM STATİK DOSYALARI DIŞA AÇ (Sitenin tasarımı için gerekli) */
 app.use(express.static(__dirname));
 
-/* 🔥 ANA SAYFA (Artık siteye girildiğinde index.html açılacak) */
+/* 🔥 ANA SAYFA (Siteye girildiğinde direkt index.html açılacak) */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-/* 🔥 MONGODB */
+/* 🔥 MONGODB BAĞLANTISI */
 mongoose.connect("mongodb+srv://ahmedramazan12321_db_user:12345678Aa323@cluster0.qtdzrfm.mongodb.net/myapp")
 .then(() => console.log("MongoDB Bağlantısı Başarılı"))
 .catch(err => console.log("MongoDB Hatası:", err));
 
-/* 🔥 MODEL */
+/* 🔥 KULLANICI MODELİ */
 const UserSchema = new mongoose.Schema({
   email: String,
   password: String,
@@ -33,7 +33,7 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
-/* 🔥 REGISTER */
+/* 🔥 REGISTER (KAYIT) */
 app.post("/register", async (req, res) => {
   const { email, password } = req.body;
 
@@ -47,7 +47,7 @@ app.post("/register", async (req, res) => {
   res.json({ success: true, userId: id });
 });
 
-/* 🔥 LOGIN */
+/* 🔥 LOGIN (GİRİŞ) */
 app.post("/login", async (req, res) => {
   const user = await User.findOne({
     email: req.body.email,
@@ -59,15 +59,17 @@ app.post("/login", async (req, res) => {
   res.json({ success: true, userId: user.id });
 });
 
-/* 🔥 USER */
+/* 🔥 USER (KULLANICI BİLGİLERİNİ GETİR) */
 app.get("/user/:id", async (req, res) => {
   const user = await User.findOne({ id: Number(req.params.id) });
   res.json(user);
 });
 
-/* 🔥 ADMIN PARA EKLE */
+/* 🔥 ADMIN PARA EKLE VEYA SİL */
 app.post("/add-balance", async (req, res) => {
-  if (req.body.adminKey !== "1234") {
+  
+  // 🔥 ŞİFRE BURADA BELİRLENDİ: Artık şifre "kbs"
+  if (req.body.adminKey !== "kbs") {
     return res.json({ error: "no_auth" });
   }
 
@@ -80,11 +82,13 @@ app.post("/add-balance", async (req, res) => {
   /* 🔥 ANA PARA SABİT */
   user.depositAmount = amt;
 
-  /* 🔥 BAKİYE */
+  /* 🔥 BAKİYE EKLENİYOR/SİLİNİYOR */
   user.balance += amt;
 
-  /* 🔥 TIMER BAŞLAT */
-  user.depositTime = Date.now();
+  /* 🔥 TIMER BAŞLAT (Eğer para ekleniyorsa) */
+  if(amt > 0) {
+    user.depositTime = Date.now();
+  }
 
   await user.save();
 
@@ -95,11 +99,29 @@ app.post("/add-balance", async (req, res) => {
   });
 });
 
-/* 🔥 OTOMATİK KAZANÇ SİSTEMİ */
+/* 🔥 ADMIN TIMER RESET (Admin paneli için eksik olan kod eklendi) */
+app.post("/reset-timer", async (req, res) => {
+  if (req.body.adminKey !== "kbs") {
+    return res.json({ error: "no_auth" });
+  }
+
+  const { id } = req.body;
+
+  let user = await User.findOne({ id: Number(id) });
+  if (!user) return res.json({ error: "user_not_found" });
+
+  user.depositTime = 0; // Süreyi sıfırla
+  await user.save();
+
+  res.json({ success: true });
+});
+
+
+/* 🔥 OTOMATİK KAZANÇ SİSTEMİ (Her 1 dakikada bir kontrol eder) */
 setInterval(async () => {
   try {
     const now = Date.now();
-    const ONE_DAY = 86400000;
+    const ONE_DAY = 86400000; // 24 Saat (Milisaniye)
 
     const users = await User.find({
       depositAmount: { $gt: 0 },
@@ -109,14 +131,14 @@ setInterval(async () => {
     for (let user of users) {
       const diff = now - user.depositTime;
 
+      // Eğer yatırımın üzerinden 24 saat geçmişse
       if (diff >= ONE_DAY) {
-        const reward = user.depositAmount * 0.20;
+        const reward = user.depositAmount * 0.20; // %20 kazanç
 
         user.balance += reward;
 
-        /* 🔥 TIMER RESET */
+        /* 🔥 TIMER RESET (Bir sonraki 24 saat için baştan başlar) */
         user.depositTime = Date.now();
-
         user.lastDailyGiven = now;
 
         await user.save();
@@ -129,7 +151,8 @@ setInterval(async () => {
   }
 }, 60000);
 
-/* 🔥 SERVER */
-app.listen(3000, () => {
-  console.log("🚀 Server çalışıyor (3000)");
+/* 🔥 SERVER ÇALIŞTIRMA */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server çalışıyor (${PORT})`);
 });
