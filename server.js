@@ -7,10 +7,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-/* 🔥 TÜM STATİK DOSYALARI DIŞA AÇ (Sitenin tasarımı için gerekli) */
+/* 🔥 TÜM STATİK DOSYALARI DIŞA AÇ */
 app.use(express.static(__dirname));
 
-/* 🔥 ANA SAYFA (Siteye girildiğinde direkt index.html açılacak) */
+/* 🔥 ANA SAYFA */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -36,42 +36,36 @@ const User = mongoose.model("User", UserSchema);
 /* 🔥 REGISTER (KAYIT) */
 app.post("/register", async (req, res) => {
   const { email, password } = req.body;
-
   const existingUser = await User.findOne({ email });
   if (existingUser) return res.json({ error: "email_used" });
 
   const id = Math.floor(100000 + Math.random() * 900000);
-
   await User.create({ email, password, id });
-
   res.json({ success: true, userId: id });
 });
 
 /* 🔥 LOGIN (GİRİŞ) */
 app.post("/login", async (req, res) => {
-  const user = await User.findOne({
-    email: req.body.email,
-    password: req.body.password
-  });
-
+  const user = await User.findOne({ email: req.body.email, password: req.body.password });
   if (!user) return res.json({ error: "wrong" });
-
   res.json({ success: true, userId: user.id });
 });
 
-/* 🔥 USER (KULLANICI BİLGİLERİNİ GETİR) */
+/* 🔥 USER (KULLANICI BİLGİLERİNİ GETİR) - SAAT FARKINI DÜZELTMEK İÇİN GÜNCELLENDİ */
 app.get("/user/:id", async (req, res) => {
   const user = await User.findOne({ id: Number(req.params.id) });
-  res.json(user);
+  if (!user) return res.json({ error: "not_found" });
+
+  // 🔥 Server saatini de gönderiyoruz ki cihaz saati yanlış olsa bile sayaç bozulmasın
+  res.json({
+    ...user.toObject(),
+    serverNow: Date.now()
+  });
 });
 
 /* 🔥 ADMIN PARA EKLE VEYA SİL */
 app.post("/add-balance", async (req, res) => {
-  
-  // 🔥 ŞİFRE BURADA BELİRLENDİ: Artık şifre "kbs"
-  if (req.body.adminKey !== "kbs") {
-    return res.json({ error: "no_auth" });
-  }
+  if (req.body.adminKey !== "kbs") return res.json({ error: "no_auth" });
 
   const { id, amount } = req.body;
   const amt = Number(amount);
@@ -79,70 +73,55 @@ app.post("/add-balance", async (req, res) => {
   let user = await User.findOne({ id: Number(id) });
   if (!user) return res.json({ error: "user_not_found" });
 
-  /* 🔥 ANA PARA SABİT */
   user.depositAmount = amt;
-
-  /* 🔥 BAKİYE EKLENİYOR/SİLİNİYOR */
   user.balance += amt;
 
-  /* 🔥 TIMER BAŞLAT (Eğer para ekleniyorsa) */
   if(amt > 0) {
     user.depositTime = Date.now();
   }
 
   await user.save();
-
-  res.json({
-    success: true,
-    balance: user.balance,
-    depositAmount: user.depositAmount
-  });
+  res.json({ success: true, balance: user.balance, depositAmount: user.depositAmount });
 });
 
-/* 🔥 ADMIN TIMER RESET (Admin paneli için eksik olan kod eklendi) */
+/* 🔥 ADMIN TIMER RESET */
+/* 🔥 ADMIN TIMER 20 SANİYEYE DÜŞÜR */
 app.post("/reset-timer", async (req, res) => {
-  if (req.body.adminKey !== "kbs") {
-    return res.json({ error: "no_auth" });
-  }
+  if (req.body.adminKey !== "kbs") return res.json({ error: "no_auth" });
 
   const { id } = req.body;
-
   let user = await User.findOne({ id: Number(id) });
   if (!user) return res.json({ error: "user_not_found" });
 
-  user.depositTime = 0; // Süreyi sıfırla
+  // 🔥 24 saat (86400000 ms) eksi 20 saniye (20000 ms) = 86380000 ms
+  // Sistemi paranın 23 saat 59 dk 40 saniye önce yatırıldığına inandırıyoruz.
+  user.depositTime = Date.now() - 86380000; 
+  
   await user.save();
-
   res.json({ success: true });
 });
 
-
-/* 🔥 OTOMATİK KAZANÇ SİSTEMİ (Her 1 dakikada bir kontrol eder) */
+/* 🔥 OTOMATİK KAZANÇ SİSTEMİ (0 OLDUĞUNDA %20 EKLER VE 24 SAAT YENİDEN BAŞLAR) */
 setInterval(async () => {
   try {
     const now = Date.now();
     const ONE_DAY = 86400000; // 24 Saat (Milisaniye)
 
-    const users = await User.find({
-      depositAmount: { $gt: 0 },
-      depositTime: { $gt: 0 }
-    });
+    const users = await User.find({ depositAmount: { $gt: 0 }, depositTime: { $gt: 0 } });
 
     for (let user of users) {
       const diff = now - user.depositTime;
 
-      // Eğer yatırımın üzerinden 24 saat geçmişse
+      // Süre dolduğunda...
       if (diff >= ONE_DAY) {
         const reward = user.depositAmount * 0.20; // %20 kazanç
+        user.balance += reward; // Bakiyeye ekle
 
-        user.balance += reward;
-
-        /* 🔥 TIMER RESET (Bir sonraki 24 saat için baştan başlar) */
+        /* 🔥 TIMER RESET (Tekrar 24 saatten sayması için zamanı şu an olarak günceller) */
         user.depositTime = Date.now();
         user.lastDailyGiven = now;
 
         await user.save();
-
         console.log(`💰 ${user.id} kullanıcısına ${reward}$ eklendi`);
       }
     }
@@ -153,6 +132,4 @@ setInterval(async () => {
 
 /* 🔥 SERVER ÇALIŞTIRMA */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server çalışıyor (${PORT})`);
-});
+app.listen(PORT, () => { console.log(`🚀 Server çalışıyor (${PORT})`); });
