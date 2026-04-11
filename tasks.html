@@ -227,7 +227,7 @@ function applyLang(lang) {
   document.body.style.direction = (lang === 'ar') ? "rtl" : "ltr";
 }
 
-function startCountdown(depositTime) {
+function startCountdown(depositTime, serverNow) {
   clearInterval(countdownInterval);
   let nextEl = document.getElementById("nextTime");
   
@@ -238,23 +238,26 @@ function startCountdown(depositTime) {
 
   // Hedef zaman = Yatırım Zamanı + 24 Saat (86400000 ms)
   const targetTime = depositTime + 86400000;
+  
+  // 🔥 Telefonun saati yanlış olsa bile Server saatini baz alır
+  let timeRemaining = targetTime - serverNow;
 
   countdownInterval = setInterval(() => {
-    let now = Date.now();
-    let diff = targetTime - now;
+    timeRemaining -= 1000; // Her saniye cihaz saatinden bağımsız olarak 1000 ms düşür
 
-    if (diff <= 0) {
+    if (timeRemaining <= 0) {
       clearInterval(countdownInterval);
       nextEl.innerText = translations[getLang()].ready;
       
-      // Timer sıfırlandığında ve para eklendiğinde arayüzü güncellemek için kullanıcıyı tekrar çek
+      // Süre 0 olduğunda Server %20'yi ekleyip süreyi sıfırladığında sayfayı yenilemek için
       setTimeout(loadUser, 3000); 
       return;
     }
 
-    let h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    let m = Math.floor((diff / 1000 / 60) % 60);
-    let s = Math.floor((diff / 1000) % 60);
+    // Artık tam 24 saatten başlayıp düzgün bir şekilde aşağıya inecek
+    let h = Math.floor(timeRemaining / (1000 * 60 * 60)); 
+    let m = Math.floor((timeRemaining / 1000 / 60) % 60);
+    let s = Math.floor((timeRemaining / 1000) % 60);
 
     nextEl.innerText = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
   }, 1000);
@@ -269,25 +272,19 @@ function loadUser() {
         window.location.href = "login.html";
         return;
       }
-      
-      // 🔴 HATA AYIKLAMA İÇİN KONSOLA YAZDIRIYORUZ
-      console.log("📥 Sunucudan Gelen Veri:", user);
 
       const balance = parseFloat(user.balance) || 0;
       const depositAmount = parseFloat(user.depositAmount) || 0;
       const dailyIncome = depositAmount * 0.20;
 
-      // Verileri Arayüze Yazdır
       document.getElementById("userBalanceText").innerText = "$" + balance.toFixed(2);
       document.getElementById("depositAmount").innerText = "$" + depositAmount.toFixed(2);
       document.getElementById("dailyAmount").innerText = "$" + dailyIncome.toFixed(2);
       
-      // Ana Para 0'dan büyükse ve depositTime varsa 24 saatlik sayacı başlat
+      // 🔥 Artık Server saatini de (serverNow) fonksiyona gönderiyoruz
       if(depositAmount > 0 && user.depositTime > 0) {
-        console.log("✅ Timer Başlatılıyor...");
-        startCountdown(user.depositTime);
+        startCountdown(user.depositTime, user.serverNow || Date.now());
       } else {
-        console.log("⚠️ Timer Başlamadı. Sebep: Ana Para veya depositTime 0.");
         document.getElementById("nextTime").innerText = "--:--:--";
       }
     })
@@ -299,7 +296,6 @@ window.onload = function() {
   applyLang(lang);
   loadUser(); 
 };
-
 </script>
 </body>
 </html>
